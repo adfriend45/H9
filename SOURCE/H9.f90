@@ -11,7 +11,6 @@ PROGRAM H9
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
 ! Date last modified : 22nd July, 2014
-! something strange happened!!!
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -69,7 +68,7 @@ Cv = 0.0
 !----------------------------------------------------------------------!
 ! Open model run output file.
 !----------------------------------------------------------------------!
-OPEN (10,FILE='output.txt',STATUS='UNKNOWN')
+OPEN (10,FILE='/store/H9/OUTPUT/output.txt',STATUS='UNKNOWN')
 WRITE (10,*) '4'            ! No. data columns in output.txt
 WRITE (10,*) ITIMEE - ITIME ! No. data lines in output.txt
 !----------------------------------------------------------------------!
