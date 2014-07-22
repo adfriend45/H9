@@ -11,6 +11,7 @@ PROGRAM H9
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
 ! Date last modified : 22nd July, 2014
+! something strange happened!!!
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
