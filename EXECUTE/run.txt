@@ -1,0 +1,4 @@
+DTSRC =    3600.00  s
+NITR  =          2  n
+NYRS  =        200  y
+IHRI  =          0 hr
