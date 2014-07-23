@@ -17,7 +17,7 @@ Cup = KGCPERMOL * Acrown * (GPP - Resp) ! Net tree C uptake (kgC/tree/s)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-tau = 20.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time   (s)
+tau = 100.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time  (s)
 Clit = Cv / tau  ! Structural litter flux                   (kgC/tree/s)
 !----------------------------------------------------------------------!
 
