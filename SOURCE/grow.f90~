@@ -41,7 +41,7 @@ r = (V / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
 D = 2.0 * r                       ! Stem diameter                    (m)
 H = alpha * r ** beta             ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
-Acrown = pi * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
+Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
 Acrown = MIN (Parea,Acrown)
 !----------------------------------------------------------------------!
 
