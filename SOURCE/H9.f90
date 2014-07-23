@@ -76,6 +76,9 @@ Dcrown = a_cd + b_cd * D             ! Crown diameter                (m)
 Acrown = pi * (Dcrown / 2.0) ** 2    ! Crown area                  (m^2)
 Acrown = MIN (Parea,Acrown)
 r = D / 2.0                          ! Stem radius                   (m)
+rold = r                             ! Saved stem radius             (m)
+Afoliage = FASA * PI * r ** 2        ! Foliage area                (m^2)
+LAI = Afoliage / (Afoliage + EPS)    ! Leaf area index         (m^2/m^2)
 H = alpha * r ** beta                ! Stem height                   (m)
 V = (FORMF / 3.0)  * pi * r ** 2 * H ! Stem volume                 (m^3)
 Cv = SIGC * V                        ! Stem carbon                  (kg)
@@ -88,12 +91,15 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Open model run output file.
+! Open model run diagnostics files.
 !----------------------------------------------------------------------!
-OPEN (10,FILE='/store/H9/OUTPUT/output.txt',STATUS='UNKNOWN')
+OPEN (10,FILE='/store/H9/OUTPUT/output_ITU.txt',STATUS='UNKNOWN')
+OPEN (11,FILE='/store/H9/OUTPUT/output_ann.txt',STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
-WRITE (10,*) '5'            ! No. data columns in output.txt
-WRITE (10,*) ITIMEE - ITIME ! No. data lines   in output.txt
+WRITE (10,*) '5'            ! No. data columns in output_ITU.txt
+WRITE (10,*) ITIMEE - ITIME ! No. data lines   in output_ITU.txt
+WRITE (11,*) '5'            ! No. data columns in output_ann.txt
+WRITE (11,*) NYRS           ! No. data lines   in output_ann.txt
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -137,8 +143,10 @@ DO WHILE (ITIME < ITIMEE)
   ! Accumulated diagnostics.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
-    WRITE (*,*) NPP_ann_acc,Acrown
+    rwidth = 1.0e3 * (r - rold) ! Stem ring width                   (mm)
+    WRITE (11,*) JYEAR,NPP_ann_acc,Acrown,rwidth,LAI
     NPP_ann_acc = 0.0
+    rold = r
   ENDIF
   !--------------------------------------------------------------------!
 
@@ -153,9 +161,10 @@ END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Close model run output file.
+! Close model run diagnostics files.
 !----------------------------------------------------------------------!
 CLOSE (10)
+CLOSE (11)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

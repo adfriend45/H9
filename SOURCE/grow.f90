@@ -11,13 +11,14 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-GPP    = 10.0e-6   ! Crown gross photosynthesis             (umol/m^2/s)
-Resp   = 0.5 * GPP ! Maintenance respiration                (umol/m^2/s)
+fAPAR = 1.0 - EXP (-0.5 * LAI)  ! Fraction of PAR absorbed    (fraction)
+GPP   = 10.0e-6 * fAPAR   ! Crown gross photosynthesis      (umol/m^2/s)
+Resp  = 0.5 * GPP ! Maintenance respiration                 (umol/m^2/s)
 Cup = KGCPERMOL * Acrown * (GPP - Resp) ! Net tree C uptake (kgC/tree/s)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-tau = 100.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time  (s)
+tau = 10.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time  (s)
 Clit = Cv / tau  ! Structural litter flux                   (kgC/tree/s)
 !----------------------------------------------------------------------!
 
@@ -43,6 +44,8 @@ H = alpha * r ** beta             ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
 Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
 Acrown = MIN (Parea,Acrown)
+Afoliage = FASA * PI * r ** 2     ! Foliage area                   (m^2)
+LAI = Afoliage / (Acrown + EPS)   ! Leaf area index            (m^2/m^2)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

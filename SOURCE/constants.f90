@@ -26,6 +26,7 @@ REAL, PARAMETER :: alpha     =   59.8 ! Height allometery     (unitless)
 REAL, PARAMETER :: beta      =  0.769 ! Height allometery     (unitless)
 REAL, PARAMETER :: a_cd      =   1.13 ! Crown area allometry       (m^2)
 REAL, PARAMETER :: b_cd      =   15.2 ! Crown area allometry     (m^2/m)
+REAL, PARAMETER :: FASA      = 1000.0 ! Foliage/sapwood area   (m^2/m^2)
 REAL, PARAMETER :: Parea     =  200.0 ! Plot area                  (m^2)
 !----------------------------------------------------------------------!
 END MODULE CONSTANTS
