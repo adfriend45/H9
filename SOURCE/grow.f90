@@ -4,41 +4,51 @@ SUBROUTINE GROW
 ! Update an individual tree.
 !----------------------------------------------------------------------!
 USE CONSTANTS
-USE CONTROL_PARAMETERS
+USE CONTROL
 USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-Acrown = 10.0      ! Tree crown area                                (m2)
-GPP    = 10.0e-6   ! Tree crown gross photosynthesis        (umol/m^2/s)
-Resp   = 0.5 * GPP ! Tree maintenance respiration           (umol/m^2/s)
+GPP    = 10.0e-6   ! Crown gross photosynthesis             (umol/m^2/s)
+Resp   = 0.5 * GPP ! Maintenance respiration                (umol/m^2/s)
 Cup = KGCPERMOL * Acrown * (GPP - Resp) ! Net tree C uptake (kgC/tree/s)
 !----------------------------------------------------------------------!
-tau = 10.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time   (s)
-Clit = Cv / tau  ! Tree structural litter flux              (kgC/tree/s)
+
 !----------------------------------------------------------------------!
-dCV = Cup - Clit ! Tree structural carbon time derivative   (kgC/tree/s)
+tau = 20.0 * FLOAT (EDPERY * SPERED) ! Structural C residence time   (s)
+Clit = Cv / tau  ! Structural litter flux                   (kgC/tree/s)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
+dCV = Cup - Clit ! Structural carbon time derivative        (kgC/tree/s)
+!----------------------------------------------------------------------!
+
 !----------------------------------------------------------------------!
 Cv = Cv + DTTR * dCv
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-v = Cv / SIGC ! Stem volume                                        (m^3)
+V = Cv / SIGC ! Stem volume                                        (m^3)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Stem radius                                                        (m)
+! Update variables                                                   (m)
 !----------------------------------------------------------------------!
-r = (v / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
-&   ** (1.0 / (2.0 + beta))
+r = (V / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
+&   ** (1.0 / (2.0 + beta))       ! Stem radius                      (m)
+D = 2.0 * r                       ! Stem diameter                    (m)
+H = alpha * r ** beta             ! Stem height                      (m)
+Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
+Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
+Acrown = MIN (Parea,Acrown)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Stem height                                                        (m)
+! Accumulate annual diagnostics.
 !----------------------------------------------------------------------!
-h = alpha * r ** beta
+NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Parea + EPS)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
