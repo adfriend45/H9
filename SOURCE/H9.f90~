@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 23rd July, 2014
+! Date last modified : 24rd July, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -46,6 +46,9 @@ WRITE (20,'(A8,I10  ,A3)') 'NITR  = ',NITR ,'  n'
 WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
+ALLOCATE (rwidth (NYRS))
+rwidth (:) = 0.0
+
 !----------------------------------------------------------------------!
 ! Close run control text file.
 !----------------------------------------------------------------------!
@@ -77,8 +80,12 @@ Acrown = pi * (Dcrown / 2.0) ** 2    ! Crown area                  (m^2)
 Acrown = MIN (Parea,Acrown)
 r = D / 2.0                          ! Stem radius                   (m)
 rold = r                             ! Saved stem radius             (m)
-Afoliage = FASA * PI * r ** 2        ! Foliage area                (m^2)
-LAI = Afoliage / (Parea + EPS)       ! Leaf area index         (m^2/m^2)
+hage = 0                             ! Age of ring to hearwood      (yr)
+hrad = 0.0                           ! Heartwood radius              (m)
+Aheart = PI * hrad ** 2              ! Heartwood area              (m^2)
+Asapwood = PI * r ** 2  - Aheart     ! Sapwood area                (m^2)
+Afoliage = FASA * Asapwood           ! Foliage area                (m^2)
+LAI = Afoliage / (Acrown + EPS)      ! Leaf area index         (m^2/m^2)
 H = alpha * r ** beta                ! Stem height                   (m)
 V = (FORMF / 3.0)  * pi * r ** 2 * H ! Stem volume                 (m^3)
 Cv = SIGC * V                        ! Stem carbon                  (kg)
@@ -133,6 +140,18 @@ DO WHILE (ITIME < ITIMEE)
   END DO
   !--------------------------------------------------------------------!
 
+  ! After 10 yr start to grow heartwood.
+  !IF (JYEAR >= 50) THEN
+  IF (LAI >= 5.0) THEN
+    !IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
+      !Aheart = PI * SUM (rwidth(1:JYEAR-YEARI+1-49)) ** 2
+      hage = hage + 1
+      hrad = hrad + rwidth (hage)
+      Aheart = PI * hrad ** 2
+      write (*,*) jyear-(hage+yeari),LAI,PI * SUM (rwidth(1:JYEAR-YEARI+1-49)) ** 2,Asapwood
+    !END IF
+  END IF
+
   !--------------------------------------------------------------------!
   ! Output some variables to 'output.txt'.
   !--------------------------------------------------------------------!
@@ -143,8 +162,9 @@ DO WHILE (ITIME < ITIMEE)
   ! Accumulated diagnostics.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
-    rwidth = 1.0e3 * (r - rold) ! Stem ring width                   (mm)
-    WRITE (11,*) JYEAR,NPP_ann_acc,Acrown,rwidth,LAI
+    rwidth (JYEAR-YEARI+1) = (r - rold) ! Stem ring width           (mm)
+    WRITE (11,*) JYEAR,NPP_ann_acc,Acrown,1.0e3*rwidth(JYEAR-YEARI+1), &
+    &            LAI
     NPP_ann_acc = 0.0
     rold = r
   ENDIF
@@ -165,6 +185,7 @@ END DO
 !----------------------------------------------------------------------!
 CLOSE (10)
 CLOSE (11)
+write (*,*) 1.0e3*rwidth(1:10)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

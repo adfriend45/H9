@@ -39,12 +39,13 @@ V = Cv / SIGC ! Stem volume                                        (m^3)
 !----------------------------------------------------------------------!
 r = (V / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
 &   ** (1.0 / (2.0 + beta))       ! Stem radius                      (m)
+Asapwood = PI * r ** 2 - Aheart   ! Sapwood area                   (m^2)
 D = 2.0 * r                       ! Stem diameter                    (m)
 H = alpha * r ** beta             ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
 Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
 Acrown = MIN (Parea,Acrown)
-Afoliage = FASA * PI * r ** 2     ! Foliage area                   (m^2)
+Afoliage = FASA * Asapwood        ! Foliage area                   (m^2)
 LAI = Afoliage / (Acrown + EPS)   ! Leaf area index            (m^2/m^2)
 !----------------------------------------------------------------------!
 

@@ -17,12 +17,16 @@ REAL :: r        ! Stem radius                                       (m)
 REAL :: D        ! Stem diameter                                     (m)
 REAL :: H        ! Stem height                                       (m)
 REAL :: Dcrown   ! Crown diameter                                    (m)
+REAL :: hrad     ! Heartwood width                                   (m)
+REAL :: hage     ! Age of ring to hearwood                          (yr)
 REAL :: Afoliage ! Foliage area                                    (m^2)
+REAL :: Asapwood ! Sapwood area                                    (m^2)
+REAL :: Aheart   ! Heartwood area                                  (m^2)
 REAL :: LAI      ! Leaf area index                             (m^2/m^2)
 REAL :: fAPAR    ! Fraction of PAR absorbed by crown          (fraction)
 REAL :: NPP_ann_acc ! Accumulated annual NPP                (kgC/m^2/yr)
 REAL :: rold        ! Saved stem radius                              (m)
-REAL :: rwidth      ! Stem ring width                               (mm)
+REAL, ALLOCATABLE :: rwidth (:) ! Stem ring width                   (mm)
 !----------------------------------------------------------------------!
 END MODULE TREE
 !======================================================================!
