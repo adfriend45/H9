@@ -17,7 +17,7 @@ PROGRAM H9
 USE CONSTANTS
 USE CONTROL
 USE TREE
-USE netCDF
+USE NETCDF
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -41,14 +41,22 @@ READ (10,*) YEARI  ! Start of model run              (calendar year, yr)
 READ (10,*) MONI   ! Start of model run                   (Julian month)
 READ (10,*) IHRI   ! Start of model run              (24-hour clock, hr)
 READ (10,*) NMONAV ! No. months is a diagnostic acc period      (months)
+READ (10,*) NIND   ! No. trees to simulate                           (n)
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
 WRITE (20,'(A8,I10  ,A3)') 'NITR  = ',NITR ,'  n'
 WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
+!----------------------------------------------------------------------!
 ALLOCATE (rwidth (NYRS))
+ALLOCATE (D  (NIND))
+ALLOCATE (Cv (NIND))
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
 rwidth (:) = 0.0
+!----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Close run control text file.
@@ -75,21 +83,26 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 ! Initialise state variables.
 !----------------------------------------------------------------------!
-D = 0.01                             ! Stem diameter                 (m)
-Dcrown = a_cd + b_cd * D             ! Crown diameter                (m)
-Acrown = pi * (Dcrown / 2.0) ** 2    ! Crown area                  (m^2)
-Acrown = MIN (Parea,Acrown)
-r = D / 2.0                          ! Stem radius                   (m)
-rold = r                             ! Saved stem radius             (m)
-hage = 0                             ! Age of ring to hearwood      (yr)
-hrad = 0.0                           ! Heartwood radius              (m)
-Aheart = PI * hrad ** 2              ! Heartwood area              (m^2)
-Asapwood = PI * r ** 2  - Aheart     ! Sapwood area                (m^2)
-Afoliage = FASA * Asapwood           ! Foliage area                (m^2)
-LAI = Afoliage / (Acrown + EPS)      ! Leaf area index         (m^2/m^2)
-H = alpha * r ** beta                ! Stem height                   (m)
-V = (FORMF / 3.0)  * pi * r ** 2 * H ! Stem volume                 (m^3)
-Cv = SIGC * V                        ! Stem carbon                  (kg)
+CALL RANDOM_SEED
+DO KI = 1, NIND
+  CALL RANDOM_NUMBER (RANDOM)
+  DO WHILE (RANDOM == 0.0)
+    CALL RANDOM_NUMBER (RANDOM)
+  END DO
+  D = RANDOM * 0.01      ! Stem diameter                             (m)
+  r = D / 2.0            ! Stem radius                               (m)
+  rold (KI) = r                        ! Saved stem radius           (m)
+  H = alpha * r ** beta  ! Stem height                               (m)
+  Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
+  Acrown = pi * (Dcrown / 2.0) ** 2    ! Crown area                (m^2)
+  Acrown = MIN (Parea,Acrown)
+  LAI (KI) = Afoliage / (Acrown + EPS) ! Leaf area index       (m^2/m^2)
+  Aheart (KI) = 0.0                    ! Heartwood area            (m^2)
+  Asapwood = PI * r ** 2  - Aheart     ! Sapwood area                (m^2)
+  Afoliage = FASA * Asapwood           ! Foliage area                (m^2)
+  V = (FORMF / 3.0)  * pi * r ** 2 * H ! Stem volume                 (m^3)
+  Cv (I) = SIGC * V                    ! Stem carbon                (kg)
+END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -99,15 +112,12 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Open model run diagnostics files.
+! Open model run diagnostics file.
 !----------------------------------------------------------------------!
-OPEN (10,FILE='/store/H9/OUTPUT/output_ITU.txt',STATUS='UNKNOWN')
-OPEN (11,FILE='/store/H9/OUTPUT/output_ann.txt',STATUS='UNKNOWN')
+OPEN (10,FILE='/store/H9/OUTPUT/output_ann.txt',STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
-WRITE (10,*) '5'            ! No. data columns in output_ITU.txt
-WRITE (10,*) ITIMEE - ITIME ! No. data lines   in output_ITU.txt
-WRITE (11,*) '5'            ! No. data columns in output_ann.txt
-WRITE (11,*) NYRS           ! No. data lines   in output_ann.txt
+WRITE (10,*) '8'            ! No. data columns in output_ann.txt
+WRITE (10,*) NYRS           ! No. data lines   in output_ann.txt
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -134,6 +144,12 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
+  ! Compute light profile down through plot.
+  !--------------------------------------------------------------------!
+  CALL LIGHT
+  !--------------------------------------------------------------------!
+
+  !--------------------------------------------------------------------!
   ! Call GROW NITR times each ITU.
   !--------------------------------------------------------------------!
   DO NT = 1, NITR
@@ -141,31 +157,19 @@ DO WHILE (ITIME < ITIMEE)
   END DO
   !--------------------------------------------------------------------!
 
-  ! After 10 yr start to grow heartwood.
-  !IF (JYEAR >= 50) THEN
-  IF (LAI >= 5.0) THEN
-    !IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
-      !Aheart = PI * SUM (rwidth(1:JYEAR-YEARI+1-49)) ** 2
-      hage = hage + 1
-      hrad = hrad + rwidth (hage)
-      Aheart = PI * hrad ** 2
-      write (*,*)(jyear-yeari+1)-hage,LAI,PI * SUM (rwidth(1:JYEAR-YEARI+1-49)) ** 2,Asapwood
-    !END IF
+  ! Grow heartwood if low light at crown base, 1-cm/ITU.
+  IF (PAR_base < 0.05) THEN
+      Aheart = Aheart + 0.01 / FASA
   END IF
-
-  !--------------------------------------------------------------------!
-  ! Output some variables to 'output.txt'.
-  !--------------------------------------------------------------------!
-  WRITE (10,*) ITIME/FLOAT(NDAY*EDPERY),Cv,r,H,Acrown
-  !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
   ! Accumulated diagnostics.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
     rwidth (JYEAR-YEARI+1) = (r - rold) ! Stem ring width           (mm)
-    WRITE (11,*) JYEAR,NPP_ann_acc,Acrown,1.0e3*rwidth(JYEAR-YEARI+1), &
-    &            LAI
+    WRITE (10,'(I7,7F12.4)') JYEAR,NPP_ann_acc,Acrown,                 &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
+    &                        LAI,Aheart,PAR_base,H
     NPP_ann_acc = 0.0
     rold = r
   ENDIF
@@ -186,7 +190,6 @@ END DO
 !----------------------------------------------------------------------!
 CLOSE (10)
 CLOSE (11)
-write (*,*) 1.0e3*rwidth(1:10)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
