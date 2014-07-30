@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 24rd July, 2014
+! Date last modified : 30th July, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -27,7 +27,7 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
-OPEN (10,FILE='../EXECUTE/driver.txt',STATUS='OLD')
+OPEN (10,FILE='/store/H9/EXECUTE/driver.txt',STATUS='OLD')
 !----------------------------------------------------------------------!
 ! Open run documentation text file.
 !----------------------------------------------------------------------!
@@ -101,8 +101,8 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 ! Open model run diagnostics files.
 !----------------------------------------------------------------------!
-OPEN (10,FILE='../OUTPUT/output_ITU.txt',STATUS='UNKNOWN')
-OPEN (11,FILE='../OUTPUT/output_ann.txt',STATUS='UNKNOWN')
+OPEN (10,FILE='/store/H9/OUTPUT/output_ITU.txt',STATUS='UNKNOWN')
+OPEN (11,FILE='/store/H9/OUTPUT/output_ann.txt',STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
 WRITE (10,*) '5'            ! No. data columns in output_ITU.txt
 WRITE (10,*) ITIMEE - ITIME ! No. data lines   in output_ITU.txt
@@ -156,7 +156,7 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   ! Output some variables to 'output.txt'.
   !--------------------------------------------------------------------!
-  !WRITE (10,*) ITIME/FLOAT(NDAY*EDPERY),Cv,r,H,Acrown
+  WRITE (10,*) ITIME/FLOAT(NDAY*EDPERY),Cv,r,H,Acrown
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
