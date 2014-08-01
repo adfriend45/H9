@@ -10,6 +10,7 @@ USE TREE
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 INTEGER :: ih,cd,I,top,bot,L
+REAL :: iPAR,lLAI
 !----------------------------------------------------------------------!
 
 fad (:) = 0.0
@@ -49,9 +50,7 @@ rPAR (:) = 0.0
 rPAR (top) = 1.0
 DO L = top-1, bot+1, -1
   rPAR (L) = EXP (-0.5 * cad (L))
-  !WRITE (*,*) L, cad (L), rPAR (L)
 END DO
-!WRITE (*,*)
 
 ! Top point in crown with negative contribution.
 DO KI = 1, NIND
@@ -59,8 +58,30 @@ DO KI = 1, NIND
   DO L = bot+1, top
     IF (rPAR (L) < 0.03) rPAR_base (KI) = L
   END DO
-  !write (*,*) ki,bot,rpar_base(KI),top
 END DO
+
+! fPAR for each tree. That is, the fraction of incident light absorbed by each tree in
+! the plot.
+fPAR (:) = 0.0
+LAI = 0.0
+DO KI = 1, NIND
+  LAI = LAI + Afoliage(KI)/Aplot
+  ih = CEILING (100.0 * H (KI))
+  ! Canopy depth (cm).
+  cd = ih - ib (KI)
+  write (*,*) ib(KI),ih
+  ! LAI in each layer from current tree.
+  lLAI = (Afoliage (KI) / Aplot) / FLOAT (cd)
+  DO L = ih, ib(KI)+1, -1
+    iPAR = EXP (-0.5 * cad (L+1))
+    fPAR (KI) = fPAR (KI) + iPAR * (1.0 - EXP (-0.5 * lLAI))
+  END DO
+  write (*,*) Afoliage(KI)/Aplot,fPAR(KI),H(KI)
+END DO
+write (*,*) 'total LAI  = ',LAI
+write (*,*) 'total fPAR = ',1.0-EXP(-0.5*LAI)
+write(*,*)
+!stop
 
 !----------------------------------------------------------------------!
 !PAR_base = EXP (-0.5 * LAI)

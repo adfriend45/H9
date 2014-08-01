@@ -13,10 +13,12 @@ IMPLICIT NONE
 DO KI = 1, NIND
 
 !----------------------------------------------------------------------!
-fAPAR = 1.0 - EXP (-0.5 * LAI)  ! Fraction of PAR absorbed    (fraction)
-GPP   = 10.0e-6 * fAPAR   ! Crown gross photosynthesis      (umol/m^2/s)
+!fAPAR = 1.0 - EXP (-0.5 * LAI)  ! Fraction of PAR absorbed   (fraction)
+fAPAR = fPAR (KI)
+GPP   = 20.0e-6 * fAPAR   ! Crown gross photosynthesis      (umol/m^2/s)
 Resp  = 0.5 * GPP ! Maintenance respiration                 (umol/m^2/s)
-Cup = KGCPERMOL * Acrown * (GPP - Resp) ! Net tree C uptake (kgC/tree/s)
+! Net tree C uptake (kgC/tree/s).
+Cup = KGCPERMOL * Acrown (KI) * (GPP - Resp)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -39,16 +41,15 @@ V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
 !----------------------------------------------------------------------!
 ! Update variables                                                   (m)
 !----------------------------------------------------------------------!
-r = (V / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
-&   ** (1.0 / (2.0 + beta))       ! Stem radius                      (m)
+! Stem radius                                                         (m)
+r = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
 Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2)
 D = 2.0 * r                       ! Stem diameter                    (m)
 H (KI) = alpha * r ** beta        ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
-Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
-Acrown = MIN (Aplot,Acrown)
+Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area                (m^2)
+Acrown (KI) = MIN (Aplot,Acrown(KI))
 Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
-LAI = Afoliage (KI) / (Acrown + EPS) ! Leaf area index         (m^2/m^2)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
