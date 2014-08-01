@@ -22,6 +22,7 @@ USE NETCDF
 
 !----------------------------------------------------------------------!
 IMPLICIT NONE
+real :: floss
 !----------------------------------------------------------------------!
 CHARACTER driver*40
 CHARACTER output*40
@@ -51,12 +52,17 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (rwidth   (NYRS))
-ALLOCATE (fad     (11000))
-ALLOCATE (Cv       (NIND))
-ALLOCATE (rold     (NIND))
-ALLOCATE (H        (NIND))
-ALLOCATE (Afoliage (NIND))
+ALLOCATE (rwidth    (NYRS))
+ALLOCATE (fad      (11000))
+ALLOCATE (cad      (11000))
+ALLOCATE (rPAR     (11000))
+ALLOCATE (Cv        (NIND))
+ALLOCATE (rold      (NIND))
+ALLOCATE (H         (NIND))
+ALLOCATE (Afoliage  (NIND))
+ALLOCATE (Aheart    (NIND))
+ALLOCATE (rPAR_base (NIND))
+ALLOCATE (ib        (NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -98,11 +104,12 @@ DO KI = 1, NIND
   r = D / 2.0            ! Stem radius                               (m)
   rold (KI) = r                        ! Saved stem radius           (m)
   H (KI) = alpha * r ** beta  ! Stem height                          (m)
+  ib (KI) = 0                 ! Height to base of crown             (cm)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown = pi * (Dcrown / 2.0) ** 2    ! Crown area                (m^2)
-  Acrown = MIN (Parea,Acrown)
-  Aheart = 0.0                         ! Heartwood area            (m^2)
-  Asapwood = PI * r ** 2  - Aheart     ! Sapwood area              (m^2)
+  Acrown = MIN (Aplot,Acrown)
+  Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
+  Asapwood = PI * r ** 2  - Aheart (KI) ! Sapwood area             (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
   LAI = Afoliage (KI) / (Acrown + EPS) ! Leaf area index       (m^2/m^2)
   V = (FORMF / 3.0)  * pi * r ** 2 * H (KI) ! Stem volume          (m^3)
@@ -162,24 +169,31 @@ DO WHILE (ITIME < ITIMEE)
   END DO
   !--------------------------------------------------------------------!
 
-  ! Grow heartwood if low light at crown base, 1-cm/ITU.
-  IF (PAR_base < 0.05) THEN
-      Aheart = Aheart + 0.01 / FASA
-  END IF
-
   !--------------------------------------------------------------------!
   ! Accumulated diagnostics and re-calculate plot light profile at end
   ! of each year.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
     rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm)
-    WRITE (10,'(I7,7F12.4)') JYEAR,NPP_ann_acc,Acrown,                 &
+    WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown,        &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
-    &                        LAI,Aheart,PAR_base,H(1)
-    WRITE (*,*) Cv(1:2)
+    &                        LAI,Aheart(1),ib(1),H(1)
+    WRITE (*,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown,        &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
+    &                        LAI,Aheart(1),ib(1),H(1)
     NPP_ann_acc = 0.0
     rold (1) = r
     CALL light
+    DO KI = 1, NIND
+      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
+      &       (        100.0 * H (KI) - FLOAT (ib (KI)))
+      floss = MAX (0.0,floss)
+      floss = MIN (1.0,floss)
+      Aheart = Aheart + floss * Afoliage / FASA
+      ib (KI) = MAX (ib (KI),rPAR_base (KI))
+      write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai
+    END DO ! KI = 1, NIND
+    !stop
   ENDIF
   !--------------------------------------------------------------------!
 

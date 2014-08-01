@@ -41,12 +41,12 @@ V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
 !----------------------------------------------------------------------!
 r = (V / (( FORMF / 3.0) * PI * alpha * 2.0 ** beta)) &
 &   ** (1.0 / (2.0 + beta))       ! Stem radius                      (m)
-Asapwood = PI * r ** 2 - Aheart   ! Sapwood area                   (m^2)
+Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2)
 D = 2.0 * r                       ! Stem diameter                    (m)
 H (KI) = alpha * r ** beta        ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
 Acrown = PI * (Dcrown / 2.0) ** 2 ! Crown area                     (m^2)
-Acrown = MIN (Parea,Acrown)
+Acrown = MIN (Aplot,Acrown)
 Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
 LAI = Afoliage (KI) / (Acrown + EPS) ! Leaf area index         (m^2/m^2)
 !----------------------------------------------------------------------!
@@ -54,7 +54,7 @@ LAI = Afoliage (KI) / (Acrown + EPS) ! Leaf area index         (m^2/m^2)
 !----------------------------------------------------------------------!
 ! Accumulate annual diagnostics.
 !----------------------------------------------------------------------!
-NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Parea + EPS)
+NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
 !----------------------------------------------------------------------!
 
 END DO ! KI = 1, NIND
