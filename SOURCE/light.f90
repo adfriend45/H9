@@ -8,87 +8,54 @@ USE CONTROL
 USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
-!----------------------------------------------------------------------!
-INTEGER :: ih,cd,L,top,bot
-REAL :: iPAR,lLAI
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Plot foliage area density (m^2/m^2/cm).
-!----------------------------------------------------------------------!
-fad (:) = 0.0
+INTEGER :: KJ
+REAL :: iPAR,shade,LAI_above,space
 !----------------------------------------------------------------------!
 
-!----------------------------------------------------------------------!
-! Height of canopy to nearest 1 cm.
-!----------------------------------------------------------------------!
-top = 1
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Height of base of canopy to nearest 1 cm.
-!----------------------------------------------------------------------!
-bot = 11000
-!----------------------------------------------------------------------!
-
+! Put crown and leaf areas of each tree in each layer.
+Acrown_layer   (:,:) = 0.0
+Afoliage_layer (:,:) = 0.0
 DO KI = 1, NIND
-
-  ! Height of tree to nearest 1 cm, rounding up.
-  ih = CEILING (100.0 * H (KI))
-  
-  ! Height of canopy to nearest 1 cm.
-  top = MAX (top,ih)
-
-  ! Height of base of canopy to nearest 1 cm.
-  bot = MIN (bot,ib (KI))
-      
-  ! Crown depth (cm).
-  cd = ih - ib (KI)
-  
-  ! Populate foliage area density with this tree's foliage area,
-  ! assuming crown fills plot.
-  ! L=1 refers to 0-1 cm layer.
-  DO L = ib (KI)+1, ih
-    !fad (L) = fad (L) + (Afoliage (KI) / Aplot) / FLOAT (cd)
-    fad (L) = fad (L) + (Afoliage (KI) / (Acrown (KI) + EPS)) / FLOAT (cd)
-  END DO
-
+  ih (KI) = CEILING (100.0 * H (KI))
+  Acrown_layer   (ib(KI)+1:ih(KI),KI) = Acrown   (KI)
+  Afoliage_layer (ib(KI)+1:ih(KI),KI) = Afoliage (KI)
 END DO ! KI = 1, NIND
 
-! Cumulative foliage area down through plot.
-! L=1 refers to 0-1 cm layer.
-cad (:) = 0.0
-DO L = top, 1, -1
-  cad (L) = cad (L+1) + fad (L)
-END DO
-
-! Relative PAR profile (i.e. the relative PAR at the top of each layer).
-rPAR (top:11000) = 1.0
-DO L = top-1, 1, -1
-  rPAR (L) = EXP (-0.5 * cad (L+1))
-END DO
-
-! fPAR for each tree. That is, the fraction of the incident light on the plot
-! that is absorbed by each tree.
-fPAR (:) = 0.0
+! Go through individuals to see if shaded.
+Acrowns_above (:) = 0.0
+Afoliage_above (:) = 0.0
 DO KI = 1, NIND
-  ih = CEILING (100.0 * H (KI))
-  cd = ih - ib (KI)
-  ! LAI in each layer from current tree.
-  !lLAI = (Afoliage (KI) / Aplot) / FLOAT (cd)
-  lLAI = (Afoliage (KI) / (Acrown (KI) + EPS)) / FLOAT (cd)
-  DO L = ih, ib(KI)+1, -1
-    fPAR (KI) = fPAR (KI) + rPAR (L) * (1.0 - EXP (-0.5 * lLAI))
+  DO KJ = 1, NIND
+    IF (KJ .NE. KI) THEN
+      IF (ih (KJ) > ih(KI)) THEN
+        Acrowns_above  (KI) = Acrowns_above  (KI) + Acrown   (KJ)
+        Afoliage_above (KI) = Afoliage_above (KI) + Afoliage (KJ)
+      END IF
+    END IF
   END DO
-END DO
+  space = MAX (0.0,Aplot-Acrowns_above(KI))
+  IF (Acrown (KI) <= space) THEN
+    shade = 0.0
+  ELSE
+    ! Fraction of crown shaded.
+    shade = (Acrown (KI) - space) / Acrown (KI)
+  END IF
+  LAI_above = Afoliage_above (KI) / (Acrowns_above (KI) + EPS)
+  ! Mean iPAR at top of this tree.
+  iPAR = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
+  ! fPAR of this tree.
+  fPAR (KI) = iPAR * (1.0 - EXP (-0.5 * LAIcrown (KI)))
+  write (*,*) KI,iPAR,fPAR(KI),shade,LAIcrown (KI),H(KI)
+END DO ! KI = 1, NIND
 
-! Top point in crown with negative contribution.
-!DO KI = 1, NIND
-!  rPAR_base (KI) = 0
+! Top point in each crown with negative contribution.
+DO KI = 1, NIND
+  !rPAR_base (KI) = 0
+  rPAR_base (KI) = 110000
 !  DO L = ib(KI)+1, ih
 !    IF (rPAR (L) < 0.03) rPAR_base (KI) = L
 !  END DO
-!END DO
+END DO
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light

@@ -66,6 +66,12 @@ ALLOCATE (rPAR_base (NIND))
 ALLOCATE (ib        (NIND))
 ALLOCATE (fPAR      (NIND))
 ALLOCATE (Acrown    (NIND))
+ALLOCATE (LAIcrown  (NIND))
+ALLOCATE (Acrowns_above (NIND))
+ALLOCATE (Afoliage_above (NIND))
+ALLOCATE (ih (NIND))
+ALLOCATE (Acrown_layer   (11000,NIND))
+ALLOCATE (Afoliage_layer (11000,NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -117,6 +123,7 @@ DO KI = 1, NIND
   Asapwood = PI * r ** 2  - Aheart (KI) ! Sapwood area             (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
   LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI         (m^2/m^2)
+  LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r ** 2 * H (KI) ! Stem volume          (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
 END DO
@@ -181,24 +188,24 @@ DO WHILE (ITIME < ITIMEE)
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
     LAI = 0.0
     DO KI = 1, NIND
-      !LAI = LAI + Afoliage (KI) / (Aplot + EPS)
-      LAI = LAI + Afoliage (KI) / (Acrown (KI) + EPS)
+      LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
+      LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
     END DO
     rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm)
     WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
     &                        LAI,Aheart(1),ib(1),H(1)
-    WRITE ( *,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),             &
-    &                        LAI,Aheart(1),ib(1),H(1)
+    &                        LAI,Aheart(1),ib(1),H(1),H(2)
     NPP_ann_acc = 0.0
     rold (1) = r
     CALL light
     DO KI = 1, NIND
-      !floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
-      !&       (        100.0 * H (KI) - FLOAT (ib (KI)))
-      !floss = MAX (0.0,floss)
-      !floss = MIN (1.0,floss)
+      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
+      &       (        100.0 * H (KI) - FLOAT (ib (KI)))
+      floss = MAX (0.0,floss)
+      floss = MIN (1.0,floss)
       !Aheart = Aheart + floss * Afoliage / FASA
       !ib (KI) = MAX (ib (KI),rPAR_base (KI))
       !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai,D,Acrown
