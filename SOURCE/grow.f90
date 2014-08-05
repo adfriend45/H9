@@ -13,11 +13,13 @@ IMPLICIT NONE
 DO KI = 1, NIND
 
 !----------------------------------------------------------------------!
-!fAPAR = 1.0 - EXP (-0.5 * LAI)  ! Fraction of PAR absorbed   (fraction)
-fAPAR = fPAR (KI)
-GPP   = 20.0e-6 * fAPAR   ! Crown gross photosynthesis      (umol/m^2/s)
+GPP   = 20.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
 Resp  = 0.5 * GPP ! Maintenance respiration                 (umol/m^2/s)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
 ! Net tree C uptake (kgC/tree/s).
+!----------------------------------------------------------------------!
 Cup = KGCPERMOL * Acrown (KI) * (GPP - Resp)
 !----------------------------------------------------------------------!
 
@@ -55,7 +57,8 @@ Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
 !----------------------------------------------------------------------!
 ! Accumulate annual diagnostics.
 !----------------------------------------------------------------------!
-NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
+!NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
+NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Acrown (1) + EPS)
 !----------------------------------------------------------------------!
 
 END DO ! KI = 1, NIND

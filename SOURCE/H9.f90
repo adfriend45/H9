@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 1st August, 2014
+! Date last modified : 4th August, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -22,6 +22,7 @@ USE NETCDF
 
 !----------------------------------------------------------------------!
 IMPLICIT NONE
+integer :: i
 real :: floss
 !----------------------------------------------------------------------!
 CHARACTER driver*40
@@ -97,14 +98,14 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 ! Initialise state variables.
 !----------------------------------------------------------------------!
 CALL RANDOM_SEED
+LAI = 0.0 ! Plot LAI                                           (m^2/m^2)
 DO KI = 1, NIND
   CALL RANDOM_NUMBER (RANDOM)
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.01      ! Stem diameter                             (m)
-  !if (ki == 1) D = 0.5
-  !if (ki == 2) D = 0.6
+  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
+  !D = RANDOM * 0.5 + 0.001 ! Stem diameter                         (m)
   r = D / 2.0            ! Stem radius                               (m)
   rold (KI) = r                        ! Saved stem radius           (m)
   H (KI) = alpha * r ** beta  ! Stem height                          (m)
@@ -115,7 +116,7 @@ DO KI = 1, NIND
   Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
   Asapwood = PI * r ** 2  - Aheart (KI) ! Sapwood area             (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
-  LAI = Afoliage (KI) / (Acrown (KI) + EPS) ! Leaf area index  (m^2/m^2)
+  LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI         (m^2/m^2)
   V = (FORMF / 3.0)  * pi * r ** 2 * H (KI) ! Stem volume          (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
 END DO
@@ -178,24 +179,29 @@ DO WHILE (ITIME < ITIMEE)
   ! of each year.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
+    LAI = 0.0
+    DO KI = 1, NIND
+      !LAI = LAI + Afoliage (KI) / (Aplot + EPS)
+      LAI = LAI + Afoliage (KI) / (Acrown (KI) + EPS)
+    END DO
     rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm)
     WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
     &                        LAI,Aheart(1),ib(1),H(1)
-    !WRITE ( *,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
-    !&                        1.0e3*rwidth(JYEAR-YEARI+1),             &
-    !&                        LAI,Aheart(1),ib(1),H(1)
+    WRITE ( *,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1),             &
+    &                        LAI,Aheart(1),ib(1),H(1)
     NPP_ann_acc = 0.0
     rold (1) = r
     CALL light
     DO KI = 1, NIND
-      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
-      &       (        100.0 * H (KI) - FLOAT (ib (KI)))
-      floss = MAX (0.0,floss)
-      floss = MIN (1.0,floss)
-      Aheart = Aheart + floss * Afoliage / FASA
-      ib (KI) = MAX (ib (KI),rPAR_base (KI))
-      !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai
+      !floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
+      !&       (        100.0 * H (KI) - FLOAT (ib (KI)))
+      !floss = MAX (0.0,floss)
+      !floss = MIN (1.0,floss)
+      !Aheart = Aheart + floss * Afoliage / FASA
+      !ib (KI) = MAX (ib (KI),rPAR_base (KI))
+      !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai,D,Acrown
     END DO ! KI = 1, NIND
     !stop
   ENDIF

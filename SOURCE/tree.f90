@@ -29,7 +29,6 @@ REAL :: r        ! Stem radius                                       (m)
 REAL :: Dcrown   ! Crown diameter                                    (m)
 REAL :: Asapwood ! Sapwood area                                    (m^2)
 REAL :: LAI      ! Leaf area index                             (m^2/m^2)
-REAL :: fAPAR    ! Fraction of PAR absorbed by crown          (fraction)
 REAL :: NPP_ann_acc ! Accumulated annual NPP                (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 END MODULE TREE
