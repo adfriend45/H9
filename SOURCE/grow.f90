@@ -37,21 +37,21 @@ Cv (KI) = Cv (KI) + DTTR * dCv
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
+!V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Update variables                                                   (m)
 !----------------------------------------------------------------------!
-! Stem radius                                                         (m)
-r = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
-Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2)
-D = 2.0 * r                       ! Stem diameter                    (m)
-H (KI) = alpha * r ** beta        ! Stem height                      (m)
-Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
-Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area                (m^2)
-Acrown (KI) = MIN (Aplot,Acrown(KI))
-Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
+! Stem radius                                                        (m)
+!r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
+!Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area           (m^2)
+!D = 2.0 * r                       ! Stem diameter                   (m)
+!H (KI) = alpha * r (KI) ** beta        ! Stem height                 (m)
+!Dcrown = a_cd + b_cd * D          ! Crown diameter                  (m)
+!Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area                (m^2)
+!Acrown (KI) = MIN (Aplot,Acrown(KI))
+!Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
