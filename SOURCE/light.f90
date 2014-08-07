@@ -13,52 +13,13 @@ REAL :: shade,LAI_above,space,LAIc,flap
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Put crown and leaf areas of each tree in each layer.
-!----------------------------------------------------------------------!
-Acrown_layer   (:,:) = 0.0
-Afoliage_layer (:,:) = 0.0
-!----------------------------------------------------------------------!
-INDIVIDUALS_areas: DO KI = 1, NIND
-  !--------------------------------------------------------------------!
-  ! Tree height (cm).
-  !--------------------------------------------------------------------!
-  ih (KI) = CEILING (100.0 * H (KI))
-  !--------------------------------------------------------------------!
-  Acrown_layer   (ib(KI)+1:ih(KI),KI) = Acrown   (KI)
-  Afoliage_layer (ib(KI)+1:ih(KI),KI) = Afoliage (KI)
-  !--------------------------------------------------------------------!
-END DO INDIVIDUALS_Areas ! KI = 1, NIND
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Squeeze canopy areas into plot.
-!----------------------------------------------------------------------!
-Acrowns_layers (:) = 0.0
-!----------------------------------------------------------------------!
-DO KI = 1, NIND
-  Acrowns_layers (ib(KI)+1:ih(KI)) = Acrowns_layers (ib(KI)+1:ih(KI))  &
-  &                                  + Acrown (KI)
-END DO
-!----------------------------------------------------------------------!
-
-DO KI = 1, NIND
-  ! Crown too big? If look at top of crown, tallest tree does not
-  ! have to shrink.
-  IF (Acrowns_layers(ih(KI)) > Aplot) THEN
-    flap = Acrowns_layers(ih(KI)) / Aplot
-    Acrown (KI) = Acrown (KI) / flap
-  END IF
-END DO
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
 ! Go through individuals to calculate fPAR.
 !----------------------------------------------------------------------!
 Acrowns_above (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
-INDIVIDUALS_areas_above: DO KI = 1, NIND
-  INDIVIDUALS_above: DO KJ = 1, NIND
+INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
+  INDIVIDUALS_above: DO KJ = 1, NIND_alive
     DIFFERENT: IF (KJ .NE. KI) THEN
       TALLER: IF (ih (KJ) > ih(KI)) THEN
         Acrowns_above  (KI) = Acrowns_above  (KI) + Acrown   (KJ)
@@ -81,30 +42,25 @@ INDIVIDUALS_areas_above: DO KI = 1, NIND
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above tree                            (m^2/m^2)
   !--------------------------------------------------------------------!
-  !LAI_above = Afoliage_above (KI) / (Acrowns_above (KI) + EPS)
   LAI_above = Afoliage_above (KI) / Aplot
   !--------------------------------------------------------------------!
   ! Mean iPAR at top of tree                                  (fraction)
   !--------------------------------------------------------------------!
-  iPAR (KI) = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
+  iPAR = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
-  fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
+  fPAR (KI) = iPAR * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
-END DO INDIVIDUALS_areas_above ! KI = 1, NIND
-
-! Fraction of foliage area below compensation point.
-write (*,*)
-DO KI = 1, NIND
-  LAIc = LOG (0.03 / (iPAR (KI) + EPS)) / (-0.5)
+  ! Fraction of foliage area below compensation point.
+  !--------------------------------------------------------------------!
+  LAIc = LOG (0.03 / (iPAR + EPS)) / (-0.5)
   floss (KI) = 1.0 - LAIc / LAIcrown (KI)
   floss (KI) = MAX (floss (KI), 0.0)
   floss (KI) = MIN (floss (KI), 1.0)
-  write (*,'(2I6,5f10.3)') KI,ib(KI),LAIcrown(KI),floss(KI),H(KI), &
-  &                        Acrown(KI),Acrowns_above(KI)
-END DO
+  !--------------------------------------------------------------------!
+END DO INDIVIDUALS_areas_above ! KI = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light

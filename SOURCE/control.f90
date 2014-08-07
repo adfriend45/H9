@@ -10,6 +10,7 @@ SAVE
 !----------------------------------------------------------------------!
 ! General internal control parameters.
 !----------------------------------------------------------------------!
+INTEGER :: I  ! General loop count                                   (n)
 INTEGER :: NT ! GROW call loop count                                 (n)
 INTEGER :: KI ! Individual tree count                                (n)
 !----------------------------------------------------------------------!
@@ -24,7 +25,7 @@ INTEGER :: YEARI  ! Start of model run                     (calendar yr)
 INTEGER :: MONI   ! Start of model run                    (Julian month)
 INTEGER :: IHRI   ! Start of model run                  (24-hr clock hr)
 INTEGER :: NMONAV ! No. months in a diagnostic acc period       (months)
-INTEGER :: NIND   ! No. trees to simulate                            (n)
+INTEGER :: NIND   ! Max. no. trees to simulate                       (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -45,6 +46,7 @@ INTEGER :: JYEAR  ! Current year              (Julian calendar year, yr)
 INTEGER :: JMON   ! Current month        (Julian calendar month, months)
 INTEGER :: JDAY   ! Current day              (Julian calendar day, days)
 INTEGER :: MONTHS ! No. months run in year                      (months)
+INTEGER :: NIND_alive ! No. living trees                             (n)
 REAL    :: RANDOM ! Random number, 0-1                               (x)
 !----------------------------------------------------------------------!
 

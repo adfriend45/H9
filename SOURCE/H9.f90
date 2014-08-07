@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 6th August, 2014
+! Date last modified : 7th August, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -22,7 +22,6 @@ USE NETCDF
 
 !----------------------------------------------------------------------!
 IMPLICIT NONE
-integer :: i,rPAR_base
 !----------------------------------------------------------------------!
 CHARACTER driver*40
 CHARACTER output*40
@@ -43,7 +42,7 @@ READ (10,*) NYRS   ! Length of model run from 1/1/year1              (y)
 READ (10,*) YEARI  ! Start of model run              (calendar year, yr)
 READ (10,*) MONI   ! Start of model run                   (Julian month)
 READ (10,*) IHRI   ! Start of model run              (24-hour clock, hr)
-READ (10,*) NMONAV ! No. months is a diagnostic acc period      (months)
+READ (10,*) NMONAV ! No. months in a diagnostic acc period      (months)
 READ (10,*) NIND   ! No. trees to simulate                           (n)
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
@@ -52,42 +51,38 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (rwidth    (NYRS))
+ALLOCATE (Cv        (NIND))
+ALLOCATE (Aheart    (NIND))
+ALLOCATE (ib        (NIND))
+
+ALLOCATE (rold      (NIND))
+ALLOCATE (H         (NIND))
+ALLOCATE (Afoliage  (NIND))
+ALLOCATE (fPAR      (NIND))
+ALLOCATE (Acrown    (NIND))
+ALLOCATE (LAIcrown  (NIND))
+ALLOCATE (rwidth (NYRS,NIND))
 ALLOCATE (fad      (11000))
 ALLOCATE (cad      (11000))
 ALLOCATE (rPAR     (11000))
 ALLOCATE (Acrowns_layers (11000))
-ALLOCATE (Cv        (NIND))
-ALLOCATE (rold      (NIND))
-ALLOCATE (H         (NIND))
-ALLOCATE (Afoliage  (NIND))
-ALLOCATE (Aheart    (NIND))
-ALLOCATE (ib        (NIND))
-ALLOCATE (fPAR      (NIND))
-ALLOCATE (Acrown    (NIND))
-ALLOCATE (LAIcrown  (NIND))
 ALLOCATE (Acrowns_above (NIND))
 ALLOCATE (Afoliage_above (NIND))
 ALLOCATE (ih (NIND))
 ALLOCATE (r (NIND))
-ALLOCATE (iPAR (NIND))
 ALLOCATE (floss (NIND))
 ALLOCATE (Acrown_layer   (11000,NIND))
 ALLOCATE (Afoliage_layer (11000,NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-rwidth (:) = 0.0
+rwidth (:,:) = 0.0
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Close run control text file.
 !----------------------------------------------------------------------!
 CLOSE (10)
-!----------------------------------------------------------------------!
-! Close run documentation text file.
-!----------------------------------------------------------------------!
-CLOSE (20)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -112,8 +107,7 @@ DO KI = 1, NIND
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  !D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
-  D = RANDOM * 0.01 + 0.001 ! Stem diameter                         (m)
+  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
   r (KI) = D / 2.0            ! Stem radius                          (m)
   rold (KI) = r (KI)                   ! Saved stem radius           (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
@@ -191,47 +185,61 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
     LAI = 0.0
-    DO KI = 1, NIND
+    DO KI = 1, NIND_alive
+      !----------------------------------------------------------------!
+      ! Canopy LAI                                             (m^2/m^2)
+      !----------------------------------------------------------------!
       LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
+      !----------------------------------------------------------------!
+      ! Tree LAI                                               (m^2/m^2)
+      !----------------------------------------------------------------!
       LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
+      !----------------------------------------------------------------!
+      ! Stem ring width                                             (mm)
+      !----------------------------------------------------------------!
+      rwidth (JYEAR-YEARI+1,KI) = (r (KI) - rold (KI))
+      !----------------------------------------------------------------!
     END DO
-    rwidth (JYEAR-YEARI+1) = (r (1) - rold (1)) ! Stem ring width   (mm)
-    WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
-    &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
-    &                        LAI,Aheart(1),ib(1),H(1)
-    !WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
-    !&                        1.0e3*rwidth(JYEAR-YEARI+1),             &
-    !&                        LAI,Aheart(1),ib(1),H(1)
     NPP_ann_acc = 0.0
     rold (1) = r (1)
-    ! New structure for each tree based on new Cv.
-    DO KI = 1, NIND
-      V = Cv (KI) / SIGC ! Stem volume                               (m^3)
-      r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
-      Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area           (m^2)
-      Asapwood = MAX (0.0,Asapwood)
-      D = 2.0 * r (KI)                       ! Stem diameter           (m)
-      H (KI) = alpha * r (KI) ** beta        ! Stem height             (m)
-      Dcrown = a_cd + b_cd * D          ! Crown diameter               (m)
-      Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area            (m^2)
-      Afoliage (KI) = FASA * Asapwood   ! Foliage area               (m^2)
-    END DO
+    !------------------------------------------------------------------!
+    ! New canopy and tree structure based on growth.
+    !------------------------------------------------------------------!
+    CALL structure
+    !------------------------------------------------------------------!
+    ! New light distribution.
+    !------------------------------------------------------------------!
     CALL light
-    DO KI = 1, NIND
+    !------------------------------------------------------------------!
+    ! Adjust crowns where LAI is too high.
+    !------------------------------------------------------------------!
+    !CALL crowns_adjust subset of light...
+    !------------------------------------------------------------------!
+    DO KI = 1, NIND_alive
       Aheart (KI) = Aheart (KI) + floss (KI) * Afoliage (KI) / FASA
       Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area      (m^2)
+      Afoliage (KI) = FASA * Asapwood   ! Foliage area               (m^2)
       rPAR_base = FLOOR (floss (KI) * (100.0 * H (KI) - &
       &           FLOAT (ib (KI)))) + ib (KI)
       rPAR_base = MIN (CEILING(100.0*H(KI)),rPAR_base)
-      !floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
-      !&       (        100.0 * H (KI) - FLOAT (ib (KI)))
-      !floss = MAX (0.0,floss)
-      !floss = MIN (1.0,floss)
       ib (KI) = MAX (ib(KI),rPAR_base)
       ib (KI) = MIN (ib(KI),ih(KI)-2)
-      !write (*,*) 'H9',JYEAR-YEARI+1,ki,floss(KI),ib(ki),H(KI),lai,r(KI),Acrown(KI)
+      write (*,*) 'H9',JYEAR-YEARI+1,ki,floss(KI),ib(ki),H(KI),LAIcrown(KI),r(KI),Acrown(KI)
     END DO ! KI = 1, NIND
+    !------------------------------------------------------------------!
+    ! Kill trees with no foliage area.
+    !------------------------------------------------------------------!
+    CALL mortal
+    !------------------------------------------------------------------!
+    ! As foliage areas and crown depths may have been adjusted,
+    ! re-calculate fPARs.
     CALL light
+    WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
+    &                        LAI,Aheart(1),ib(1),H(1)
+    WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
+    &                        LAI,Aheart(1),ib(1),H(1)
   ENDIF
   !--------------------------------------------------------------------!
 
@@ -249,6 +257,12 @@ END DO
 ! Close model run diagnostics files.
 !----------------------------------------------------------------------!
 CLOSE (10)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
+! Close run documentation text file.
+!----------------------------------------------------------------------!
+CLOSE (20)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

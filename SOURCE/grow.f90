@@ -10,7 +10,7 @@ USE TREE
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 
-DO KI = 1, NIND
+DO KI = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 GPP   = 10.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
@@ -37,31 +37,12 @@ Cv (KI) = Cv (KI) + DTTR * dCv
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-!V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Update variables                                                   (m)
-!----------------------------------------------------------------------!
-! Stem radius                                                        (m)
-!r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
-!Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area           (m^2)
-!D = 2.0 * r                       ! Stem diameter                   (m)
-!H (KI) = alpha * r (KI) ** beta        ! Stem height                 (m)
-!Dcrown = a_cd + b_cd * D          ! Crown diameter                  (m)
-!Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area                (m^2)
-!Acrown (KI) = MIN (Aplot,Acrown(KI))
-!Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
 ! Accumulate annual diagnostics.
 !----------------------------------------------------------------------!
 NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
-!NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Acrown (1) + EPS)
 !----------------------------------------------------------------------!
 
-END DO ! KI = 1, NIND
+END DO ! KI = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 END SUBROUTINE grow
