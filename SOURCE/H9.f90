@@ -56,6 +56,7 @@ ALLOCATE (rwidth    (NYRS))
 ALLOCATE (fad      (11000))
 ALLOCATE (cad      (11000))
 ALLOCATE (rPAR     (11000))
+ALLOCATE (Acrowns_layers (11000))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (rold      (NIND))
 ALLOCATE (H         (NIND))
@@ -111,8 +112,8 @@ DO KI = 1, NIND
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
-  !D = RANDOM * 0.5 + 0.001 ! Stem diameter                         (m)
+  !D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
+  D = RANDOM * 0.01 + 0.001 ! Stem diameter                         (m)
   r (KI) = D / 2.0            ! Stem radius                          (m)
   rold (KI) = r (KI)                   ! Saved stem radius           (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
@@ -149,8 +150,8 @@ OPEN (10,FILE=output,STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
 WRITE (10,*) '8'            ! No. data columns in output_ann.txt
 WRITE (10,*) NYRS           ! No. data lines   in output_ann.txt
-WRITE (10,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         LAI  &
-& Aheart(1)  ib(1)    H(1)'
+WRITE (10,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         &
+&LAI   Aheart(1)  ib(1)    H(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -194,40 +195,41 @@ DO WHILE (ITIME < ITIMEE)
       LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
       LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
     END DO
-    rwidth (JYEAR-YEARI+1) = (r (1) - rold (1)) ! Stem ring width       (mm)
+    rwidth (JYEAR-YEARI+1) = (r (1) - rold (1)) ! Stem ring width   (mm)
     WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
     &                        LAI,Aheart(1),ib(1),H(1)
-    WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
-    &                        1.0e3*rwidth(JYEAR-YEARI+1),             &
-    &                        LAI,Aheart(1),ib(1),H(1),H(2)
+    !WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    !&                        1.0e3*rwidth(JYEAR-YEARI+1),             &
+    !&                        LAI,Aheart(1),ib(1),H(1)
     NPP_ann_acc = 0.0
     rold (1) = r (1)
     ! New structure for each tree based on new Cv.
     DO KI = 1, NIND
       V = Cv (KI) / SIGC ! Stem volume                               (m^3)
       r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
+      Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area           (m^2)
+      Asapwood = MAX (0.0,Asapwood)
       D = 2.0 * r (KI)                       ! Stem diameter           (m)
       H (KI) = alpha * r (KI) ** beta        ! Stem height             (m)
       Dcrown = a_cd + b_cd * D          ! Crown diameter               (m)
       Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area            (m^2)
-      Acrown (KI) = MIN (Aplot,Acrown(KI))
-      Afoliage (KI) = FASA * Asapwood   ! Foliage area                (m^2)
+      Afoliage (KI) = FASA * Asapwood   ! Foliage area               (m^2)
     END DO
-    ! Squeeze canopy areas into plot.
     CALL light
     DO KI = 1, NIND
       Aheart (KI) = Aheart (KI) + floss (KI) * Afoliage (KI) / FASA
-      Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area         (m^2)
-      rPAR_base = FLOOR (floss (KI) * (100.0 * H (KI) - FLOAT (ib (KI)))) + &
-      &           ib (KI)
+      Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area      (m^2)
+      rPAR_base = FLOOR (floss (KI) * (100.0 * H (KI) - &
+      &           FLOAT (ib (KI)))) + ib (KI)
       rPAR_base = MIN (CEILING(100.0*H(KI)),rPAR_base)
       !floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
       !&       (        100.0 * H (KI) - FLOAT (ib (KI)))
       !floss = MAX (0.0,floss)
       !floss = MIN (1.0,floss)
-      !ib (KI) = MAX (ib (KI),rPAR_base)
-      !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai,D,Acrown
+      ib (KI) = MAX (ib(KI),rPAR_base)
+      ib (KI) = MIN (ib(KI),ih(KI)-2)
+      !write (*,*) 'H9',JYEAR-YEARI+1,ki,floss(KI),ib(ki),H(KI),lai,r(KI),Acrown(KI)
     END DO ! KI = 1, NIND
     CALL light
   ENDIF
