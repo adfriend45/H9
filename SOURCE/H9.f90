@@ -200,8 +200,6 @@ DO WHILE (ITIME < ITIMEE)
       rwidth (JYEAR-YEARI+1,KI) = (r (KI) - rold (KI))
       !----------------------------------------------------------------!
     END DO
-    NPP_ann_acc = 0.0
-    rold (1) = r (1)
     !------------------------------------------------------------------!
     ! New canopy and tree structure based on growth.
     !------------------------------------------------------------------!
@@ -240,6 +238,8 @@ DO WHILE (ITIME < ITIMEE)
     WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
     &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
     &                        LAI,Aheart(1),ib(1),H(1)
+    NPP_ann_acc = 0.0
+    rold (:) = r (:)
   ENDIF
   !--------------------------------------------------------------------!
 
