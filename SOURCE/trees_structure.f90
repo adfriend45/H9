@@ -1,7 +1,8 @@
 !======================================================================!
 SUBROUTINE trees_structure
 !----------------------------------------------------------------------!
-! Compute tree and canopy structures.
+! Compute tree and canopy structures taking into account control of
+! radiation on foliage areas and space on crown areas.
 !----------------------------------------------------------------------!
 USE CONSTANTS
 USE CONTROL
@@ -13,7 +14,7 @@ REAL :: flap,LAIc
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Restrict foliage area if LAI_crown was too high for iPAR.
+! Increase heartwood area if LAIcrown was too high for iPAR.
 !----------------------------------------------------------------------!
 INDIVIDUALS_LAI_constraint: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
@@ -23,21 +24,25 @@ INDIVIDUALS_LAI_constraint: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Fraction of sapwood to convert to heartwood               (fraction)
   !--------------------------------------------------------------------!
-  floss = MAX(0.0, 1.0-LAIc/(LAIcrown(KI)+EPS))
+  floss = 1.0 - LAIc / (LAIcrown (KI) + EPS)
   !--------------------------------------------------------------------!
   IF (floss > 0.0) THEN
+    !------------------------------------------------------------------!
     floss = MIN (floss, 1.0)
     !------------------------------------------------------------------!
     ! Increase heartwood area                                      (m^2)
+    !------------------------------------------------------------------!
     Aheart (KI) = Aheart (KI) + floss * Afoliage (KI) / FASA
     !------------------------------------------------------------------!
-    ! Increase height to base of crown                              (cm)
+    ! Increase height to base of crown to maintain foliage area
+    ! vertical density.                                             (cm)
     !------------------------------------------------------------------!
     base = FLOOR (floss * (100.0 * H (KI) - &
            FLOAT (ib (KI)))) + ib (KI)
     base = MIN (CEILING(100.0*H(KI)),base)
     ib (KI) = MAX (ib(KI),base)
     ib (KI) = MIN (ib(KI),ih(KI)-2)
+    !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS_LAI_constraint
@@ -46,11 +51,8 @@ END DO INDIVIDUALS_LAI_constraint
 !----------------------------------------------------------------------!
 ! New structure for each tree based on new Cv, giving new height,
 ! potential crown area, and actual foliage area.
-! Actual crown area at end of year may be less because of space
-! constraints, and actual foliage area at end of year may be less
-! because it is too high for iPAR.
 !----------------------------------------------------------------------!
-INDIVIDUALS_potential_structures: DO KI = 1, NIND_alive
+INDIVIDUALS_potential_crowns: DO KI = 1, NIND_alive
 !----------------------------------------------------------------------!
   ! Stem volume                                                    (m^3)
   !--------------------------------------------------------------------!
@@ -89,11 +91,11 @@ INDIVIDUALS_potential_structures: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
   Acrown (KI) = PI * (Dcrown / 2.0) ** 2
   !--------------------------------------------------------------------!
-END DO INDIVIDUALS_potential_structures
+END DO INDIVIDUALS_potential_crowns
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Put crown areas of each tree in each layer to compute space
+! Sum crown areas of each tree in each layer to compute space
 ! constraints.
 !----------------------------------------------------------------------!
 Acrowns_layers (:) = 0.0
@@ -106,11 +108,21 @@ END DO
 
 !----------------------------------------------------------------------!
 DO KI = 1, NIND_alive
+  !--------------------------------------------------------------------!
   ! Crown too big? Look only at top of crown so tallest tree does not
   ! have to shrink.
-  IF (Acrowns_layers(ih(KI)) > Aplot) THEN
+  !--------------------------------------------------------------------!
+  IF (Acrowns_layers (ih(KI)) > Aplot) THEN
+    !------------------------------------------------------------------!
+    ! Total overlap as a fraction of plot area.
+    !------------------------------------------------------------------!
     flap = Acrowns_layers(ih(KI)) / Aplot
+    !------------------------------------------------------------------!
+    ! Reduce all crowns that contribute to this overlap by the fraction
+    ! of overlap in the plot. Does this work OK?
+    !------------------------------------------------------------------!
     Acrown (KI) = Acrown (KI) / flap
+    !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
   ! Tree crown LAI                                             (m^2/m^2)

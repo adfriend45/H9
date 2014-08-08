@@ -1,7 +1,8 @@
 !======================================================================!
 SUBROUTINE light
 !----------------------------------------------------------------------!
-! Compute fractional absorbed light of each tree.
+! Compute fractional absorbed light incident and absorbed by each tree
+! crown (i.e. iPAR and fPAR).
 !----------------------------------------------------------------------!
 USE CONSTANTS
 USE CONTROL
