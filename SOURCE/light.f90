@@ -9,7 +9,7 @@ USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 INTEGER :: KJ
-REAL :: shade,LAI_above,space,LAIc,flap
+REAL :: shade,LAI_above,space
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -46,19 +46,12 @@ INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Mean iPAR at top of tree                                  (fraction)
   !--------------------------------------------------------------------!
-  iPAR = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
+  iPAR (KI) = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
-  fPAR (KI) = iPAR * (1.0 - EXP (-0.5 * LAIcrown (KI)))
-  !--------------------------------------------------------------------!
-  ! Fraction of foliage area below compensation point.
-  !--------------------------------------------------------------------!
-  LAIc = LOG (0.03 / (iPAR + EPS)) / (-0.5)
-  floss (KI) = 1.0 - LAIc / LAIcrown (KI)
-  floss (KI) = MAX (floss (KI), 0.0)
-  floss (KI) = MIN (floss (KI), 1.0)
+  fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS_areas_above ! KI = 1, NIND_alive
 

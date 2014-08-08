@@ -62,17 +62,12 @@ ALLOCATE (fPAR      (NIND))
 ALLOCATE (Acrown    (NIND))
 ALLOCATE (LAIcrown  (NIND))
 ALLOCATE (rwidth (NYRS,NIND))
-ALLOCATE (fad      (11000))
-ALLOCATE (cad      (11000))
-ALLOCATE (rPAR     (11000))
 ALLOCATE (Acrowns_layers (11000))
 ALLOCATE (Acrowns_above (NIND))
 ALLOCATE (Afoliage_above (NIND))
 ALLOCATE (ih (NIND))
 ALLOCATE (r (NIND))
-ALLOCATE (floss (NIND))
-ALLOCATE (Acrown_layer   (11000,NIND))
-ALLOCATE (Afoliage_layer (11000,NIND))
+ALLOCATE (iPAR (NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -102,6 +97,7 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 CALL RANDOM_SEED
 LAI = 0.0 ! Plot LAI                                           (m^2/m^2)
+NIND_alive = 0
 DO KI = 1, NIND
   CALL RANDOM_NUMBER (RANDOM)
   DO WHILE (RANDOM == 0.0)
@@ -122,6 +118,7 @@ DO KI = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
+  NIND_alive = NIND_alive + 1
 END DO
 
 !----------------------------------------------------------------------!
@@ -201,37 +198,23 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
     END DO
     !------------------------------------------------------------------!
-    ! New canopy and tree structure based on growth.
+    ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
-    CALL structure
+    CALL trees_structure
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
     CALL light
     !------------------------------------------------------------------!
-    ! Adjust crowns where LAI is too high.
-    !------------------------------------------------------------------!
-    !CALL crowns_adjust subset of light...
-    !------------------------------------------------------------------!
     DO KI = 1, NIND_alive
-      Aheart (KI) = Aheart (KI) + floss (KI) * Afoliage (KI) / FASA
-      Asapwood = PI * r (KI) ** 2 - Aheart (KI) ! Sapwood area      (m^2)
-      Afoliage (KI) = FASA * Asapwood   ! Foliage area               (m^2)
-      rPAR_base = FLOOR (floss (KI) * (100.0 * H (KI) - &
-      &           FLOAT (ib (KI)))) + ib (KI)
-      rPAR_base = MIN (CEILING(100.0*H(KI)),rPAR_base)
-      ib (KI) = MAX (ib(KI),rPAR_base)
-      ib (KI) = MIN (ib(KI),ih(KI)-2)
-      write (*,*) 'H9',JYEAR-YEARI+1,ki,floss(KI),ib(ki),H(KI),LAIcrown(KI),r(KI),Acrown(KI)
+      write (*,*) 'H9',JYEAR-YEARI+1,ki,ib(ki),H(KI),&
+      &           LAIcrown(KI),r(KI),Acrown(KI)
     END DO ! KI = 1, NIND
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!
     CALL mortal
     !------------------------------------------------------------------!
-    ! As foliage areas and crown depths may have been adjusted,
-    ! re-calculate fPARs.
-    CALL light
     WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
     &                        LAI,Aheart(1),ib(1),H(1)

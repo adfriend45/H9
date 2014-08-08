@@ -13,22 +13,19 @@ DO KI = 1, NIND
   IF (Afoliage (KI) > 0.0) THEN
     NIND_alive = NIND_alive + 1
     IF (NIND_alive .NE. KI) THEN
-      CV (NIND_alive) = Cv (KI)
-      rold      (NIND_alive) = rold (KI)
-      H         (NIND_alive) = H (KI)
+      CV        (NIND_alive) = Cv       (KI)
+      Aheart    (NIND_alive) = Aheart   (KI)
+      ib        (NIND_alive) = ib       (KI)
+      ih        (NIND_alive) = ih       (KI)
+      rwidth    (:,NIND_alive) = rwidth (:,KI)
+      rold      (NIND_alive) = rold     (KI)
+      H         (NIND_alive) = H        (KI)
       Afoliage  (NIND_alive) = Afoliage (KI)
-      Aheart    (NIND_alive) = Aheart (KI)
-      ib        (NIND_alive) = ib (KI)
-      fPAR      (NIND_alive) = fPAR (KI)
-      Acrown    (NIND_alive) = Acrown (KI)
+      fPAR      (NIND_alive) = fPAR     (KI)
+      Acrown    (NIND_alive) = Acrown   (KI)
       LAIcrown  (NIND_alive) = LAIcrown (KI)
-      Acrowns_above (NIND_alive) = Acrowns_above (KI)
-      Afoliage_above (NIND_alive) = Afoliage_above (KI)
-      ih (NIND_alive) = ih (KI)
-      r (NIND_alive) = r (KI)
-      floss (NIND_alive) = floss (KI)
-      Acrown_layer   (:,NIND_alive) = Acrown_layer (:,KI)
-      Afoliage_layer (:,NIND_alive) = Afoliage_layer (:,KI)
+      r         (NIND_alive) = r        (KI)
+      iPAR      (NIND_alive) = iPAR     (KI)
     END IF
   END IF
 END DO

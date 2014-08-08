@@ -14,27 +14,22 @@ INTEGER, ALLOCATABLE :: ib (:) ! Height to base of crown            (cm)
 ! Derived tree variables.
 !----------------------------------------------------------------------!
 INTEGER, ALLOCATABLE :: ih (:) ! Crown height                       (cm)
-INTEGER :: rPAR_base ! PAR-limited height to base of crown          (cm)
+INTEGER :: base ! PAR-limited height to base of crown               (cm)
 !----------------------------------------------------------------------!
 REAL, ALLOCATABLE :: rwidth   (:,:) ! Stem ring width               (mm)
-REAL, ALLOCATABLE :: fad      (:) ! Vert' foliage area density (m^2/m^2)
-REAL, ALLOCATABLE :: cad      (:) ! Cum' Vert' fol' area den'  (m^2/m^2)
-REAL, ALLOCATABLE :: rPAR     (:) ! Relative PAR profile      (fraction)
 REAL, ALLOCATABLE :: Acrowns_layers (:)
 REAL, ALLOCATABLE :: rold     (:) ! Saved stem radius                (m)
 REAL, ALLOCATABLE :: H        (:) ! Stem height                      (m)
 REAL, ALLOCATABLE :: Afoliage (:) ! Foliage area                   (m^2)
-REAL, ALLOCATABLE :: floss (:)
 REAL, ALLOCATABLE :: fPAR (:) ! fPAR for each tree (fraction)
 REAL, ALLOCATABLE :: Acrown (:)   ! Tree crown area                (m^2)
 REAL, ALLOCATABLE :: LAIcrown (:) ! Tree crown LAI            (m^2/m^2)
 REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
-REAL, ALLOCATABLE :: Acrown_layer   (:,:)
-REAL, ALLOCATABLE :: Afoliage_layer (:,:)
+REAL, ALLOCATABLE :: iPAR (:) ! Relative PAR at top of crown (fraction)
 !----------------------------------------------------------------------!
-! Internal intermidiate variables.
+! Internal intermediate variables.
 !----------------------------------------------------------------------!
 REAL :: D        ! Stem diameter                                     (m)
 REAL :: dCv      ! Tree structural carbon time derivative         (kg/s)
@@ -46,9 +41,9 @@ REAL :: tau      ! Tree structural carbon residence time            (yr)
 REAL :: V        ! Stem volume                                     (m^3)
 REAL :: Dcrown   ! Crown diameter                                    (m)
 REAL :: Asapwood ! Sapwood area                                    (m^2)
-REAL :: LAI      ! Leaf area index                             (m^2/m^2)
+REAL :: LAI      ! Plot leaf area index                        (m^2/m^2)
 REAL :: NPP_ann_acc ! Accumulated annual NPP                (kgC/m^2/yr)
-REAL :: iPAR
+REAL :: floss
 !----------------------------------------------------------------------!
 END MODULE TREE
 !======================================================================!
