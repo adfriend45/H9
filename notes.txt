@@ -1,0 +1,9 @@
+Friday 8th August, 2014
+-----------------------
+I think the H9 model is working as it should. It runs with lots of trees and they gradually get bigger and thin. LAI and NPP seem reasonable. Added random component to GPP otherwise seem to converge for some reason, even though random initial diameters. Why is this? Perhaps it means the model is not sensitive to initial conditions, which would be good?
+
+Next need to check that the crown area packing is working OK (draw movie of the canopy structure), together with the LAI control. This is really the key thing before moving on. If it is, could consider a below-ground similar approach, and an herbaceous layer. Make GPP more sophisticated to allow for CO2 effects, N effects, etc.
+The, when all seems good, add the full grow_up approach, and do some experiments! Add as an option, rather than overwrite what alralready works.
+Will need mortality based on carbon balance as well, at some point, and will need to add plant type variation. Thought SLA would be something to consider early on.
+Add regeneration routine (perhaps not a priority).
+
