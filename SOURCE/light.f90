@@ -50,7 +50,6 @@ INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
-  LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS_areas_above ! KI = 1, NIND_alive

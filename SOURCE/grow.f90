@@ -14,6 +14,9 @@ DO KI = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 GPP   = 10.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
+! Following just nudges trees so they do not all grow the same.
+CALL RANDOM_NUMBER (RANDOM)
+GPP = GPP * (0.9 + RANDOM / 5.0)
 Resp  = 0.5 * GPP ! Maintenance respiration                 (umol/m^2/s)
 !----------------------------------------------------------------------!
 
