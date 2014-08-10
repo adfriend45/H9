@@ -106,23 +106,23 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 CALL RANDOM_SEED
 LAI = 0.0 ! Plot LAI                                           (m^2/m^2)
 DO KI = 1, NIND
-  CALL RANDOM_NUMBER (RANDOM)
+  CALL RANDOM_NUMBER (RANDOM) ! TTR superfluous, just the do while loop does the same
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
+  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m) !TTR diameter and radius are not saved for the individual
   !D = RANDOM * 0.5 + 0.001 ! Stem diameter                         (m)
   r = D / 2.0            ! Stem radius                               (m)
   rold (KI) = r                        ! Saved stem radius           (m)
   H (KI) = alpha * r ** beta  ! Stem height                          (m)
-  ib (KI) = 0                 ! Height to base of crown             (cm)
+  ib (KI) = 0                 ! Height to base of crown             (cm) ! TTR Why is cm?
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
-  Acrown (KI) = MIN (Aplot,Acrown(KI))
+  Acrown (KI) = MIN (Aplot,Acrown(KI)) ! TTR is this necessary or should one increase the LAI
   Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
   Asapwood = PI * r ** 2  - Aheart (KI) ! Sapwood area             (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
-  LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI         (m^2/m^2)
+  LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI         (m^2/m^2) !TTR Why add EPS? Aplot cannot be 0.0, can it? Neither can Acrown, because Aplot cannot be 0.0
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r ** 2 * H (KI) ! Stem volume          (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
@@ -137,7 +137,7 @@ CALL light
 !----------------------------------------------------------------------!
 ! Initialise diagnostic variables.
 !----------------------------------------------------------------------!
-NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
+NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr) ! TTR for the plot?
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -168,13 +168,13 @@ DO WHILE (ITIME < ITIMEE)
   ! Compute current month.
   !--------------------------------------------------------------------!
   JMON = 1
-  DO WHILE (JDAY > JDENDOFM (JMON))
+  DO WHILE (JDAY > JDENDOFM (JMON)) ! TTR Could do this with a vector which is faster and more consice
     JMON = JMON + 1
   END DO
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
-  ! Call GROW NITR times each ITU.
+  ! Call GROW NITR times each ITU. !TTR Why the extra split into biological growing units?
   !--------------------------------------------------------------------!
   DO NT = 1, NITR
     CALL grow
@@ -186,12 +186,12 @@ DO WHILE (ITIME < ITIMEE)
   ! of each year.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
-    LAI = 0.0
+    LAI = 0.0 ! TTR Set initial plot LAI to 0.0
     DO KI = 1, NIND
       LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
       LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
     END DO
-    rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm)
+    rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm) ! TTR ring width is not individual-specific? Why is rold a vector? Isn't this in m here and you convert to mm in write statement below?
     WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
     &                        LAI,Aheart(1),ib(1),H(1)
@@ -200,13 +200,13 @@ DO WHILE (ITIME < ITIMEE)
     &                        LAI,Aheart(1),ib(1),H(1),H(2)
     NPP_ann_acc = 0.0
     rold (1) = r
-    CALL light
+    CALL light ! With phenology it becomes problematic to call the light profile only at he end of the year.
     DO KI = 1, NIND
-      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
+      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / & !TTR FLOAT is obsolete. REAL is preferred.
       &       (        100.0 * H (KI) - FLOAT (ib (KI)))
       floss = MAX (0.0,floss)
       floss = MIN (1.0,floss)
-      !Aheart = Aheart + floss * Afoliage / FASA
+      !Aheart = Aheart + floss * Afoliage / FASA ! Problematic with deciduous trees.
       !ib (KI) = MAX (ib (KI),rPAR_base (KI))
       !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai,D,Acrown
     END DO ! KI = 1, NIND

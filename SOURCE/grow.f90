@@ -45,7 +45,7 @@ V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
 !----------------------------------------------------------------------!
 ! Stem radius                                                         (m)
 r = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
-Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2)
+Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2) !TTR At the moment no increase in heart wood ever
 D = 2.0 * r                       ! Stem diameter                    (m)
 H (KI) = alpha * r ** beta        ! Stem height                      (m)
 Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
@@ -58,10 +58,10 @@ Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
 ! Accumulate annual diagnostics.
 !----------------------------------------------------------------------!
 !NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
-NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Acrown (1) + EPS)
+NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Acrown (1) + EPS) ! TTR Why Acrown (1)?
 !----------------------------------------------------------------------!
 
-END DO ! KI = 1, NIND
+END DO ! KI = 1, NIND ! TTR why not use labels?
 
 !----------------------------------------------------------------------!
 END SUBROUTINE grow

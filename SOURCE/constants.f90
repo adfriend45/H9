@@ -7,13 +7,13 @@ SAVE
 INTEGER, PARAMETER :: EDPERY =   365 ! Earth days per year     (days/yr)
 INTEGER, PARAMETER :: HPERED =    24 ! Hours per Earth day          (hr)
 INTEGER, PARAMETER :: SPERED = 86400 ! Seconds per Earth day         (s)
-INTEGER, PARAMETER :: JMPERED =   12 ! Julian months per ED     (months)
+INTEGER, PARAMETER :: JMPERED =   12 ! Julian months per ED     (months) ! TTR ED? Surely not earth day?
 
 !----------------------------------------------------------------------!
 ! Last Julian day in each month.
 !----------------------------------------------------------------------!
 INTEGER, PARAMETER :: JDENDOFM (0:JMPERED) = &
-& (/0,31,59,90,120,151,181,212,243,273,304,334,365/)
+& (/0,31,59,90,120,151,181,212,243,273,304,334,365/) !TTR What about leap years
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
