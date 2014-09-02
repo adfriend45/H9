@@ -5,4 +5,4 @@
      1 ; MONI   ; Start of model run                          (Julian month)
      0 ; IHRI   ; Start of model run                       (24-hr clock, hr)
     12 ; NMONAV ; No. months in a diagnostic acc period             (months)
-   200 ; NIND   ; No. trees to simulate                                  (n)
+  2000 ; NIND   ; No. trees to simulate                                  (n)
