@@ -1,5 +1,5 @@
 !======================================================================!
-SUBROUTINE structure
+SUBROUTINE structure ! TTR This is now done in tree_structure, isn't it? This routine cause compilation problems for me, so could you delete it if it is redundant.
 !----------------------------------------------------------------------!
 ! Compute tree and canopy structures.
 !----------------------------------------------------------------------!

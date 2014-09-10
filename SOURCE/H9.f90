@@ -23,8 +23,9 @@ USE NETCDF
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 !----------------------------------------------------------------------!
-CHARACTER driver*40
-CHARACTER output*40
+CHARACTER (LEN = 100) :: driver ! TTR The star notation is obsolete and increased the length to 100
+CHARACTER (LEN = 100) :: output ! TTR The star notation is obsolete and increased the length to 100
+INTEGER :: UID_counter = 1 !TTR Counter to give each tree an unique ID. This might have to be moved once we have regeneration
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -51,6 +52,7 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
+ALLOCATE (UID       (NIND)) !TTR Unique ID for each tree to identify them across years
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
 ALLOCATE (ib        (NIND))
@@ -120,6 +122,8 @@ DO KI = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
+  UID (ki) = UID_counter !TTR Set the counter for the tree
+  UID_counter = UID_counter + 1 !TTR Increase the counter for each tree
   NIND_alive = NIND_alive + 1
 END DO
 
@@ -150,13 +154,15 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 ! Open model run diagnostics file.
 !----------------------------------------------------------------------!
-CALL getenv('OUTPUT',output)
-OPEN (10,FILE=output,STATUS='UNKNOWN')
+CALL getenv('OUTPUT',output)             
+OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changes the file number
+CALL getenv('OUTPUT2',output) !TTR get second environmental variable
+OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
 !----------------------------------------------------------------------!
-WRITE (10,*) '8'            ! No. data columns in output_ann.txt
-WRITE (10,*) NYRS           ! No. data lines   in output_ann.txt
-WRITE (10,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         &
-&LAI   Aheart(1)  ib(1)    H(1)'
+WRITE (21,*) '8'            ! No. data columns in output_ann.txt !TTR Changed unit number 
+WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt !TTR Changed unit number 
+WRITE (21,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         & 
+&LAI   Aheart(1)  ib(1)    H(1)' !TTR Changed unit number 
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -221,17 +227,22 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
     END DO
     !------------------------------------------------------------------!
-    write (20,*) NIND_alive
+    write (20,*) NIND_alive 
+    write (21, 8000) JYEAR, NIND_alive !TTR Write year and number of individuals to individual output file
+8000 format (i5, i10) !TTR format for new WRITE statement
     !------------------------------------------------------------------!
     DO KI = 1, NIND_alive
       write (*,*) 'H9',JYEAR-YEARI+1,ki,ib(ki),H(KI),&
       &           LAIcrown(KI),r(KI),Acrown(KI)
+      write (21 ,8001) JYEAR-YEARI+1, UID (KI), ib (KI), h (KI),       & !TTR Add necessary diagnostics to output file
+                       LAIcrown (KI), r (KI), Acrown (KI), shade (KI)   !TTR Add necessary diagnostics to output file
+8001 format (2i5, i10, 5f15.7) !TTR format for new WRITE statement
     END DO ! KI = 1, NIND
     !------------------------------------------------------------------!
-    WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
+    write (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
     &                        LAI,Aheart(1),ib(1),H(1)
-    WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    write ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
     &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
     &                        LAI,Aheart(1),ib(1),H(1)
     !------------------------------------------------------------------!

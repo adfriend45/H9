@@ -28,6 +28,7 @@ REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
 REAL, ALLOCATABLE :: iPAR (:) ! Relative PAR at top of crown (fraction)
+REAL, ALLOCATABLE :: UID (:) !TTR Unique ID for the tree 
 !----------------------------------------------------------------------!
 ! Internal intermediate variables.
 !----------------------------------------------------------------------!
