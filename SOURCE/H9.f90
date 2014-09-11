@@ -156,7 +156,7 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 ! Open model run diagnostics file.
 !----------------------------------------------------------------------!
 CALL getenv('OUTPUT',output)             
-OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changes the file number
+OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number
 CALL getenv('OUTPUT2',output) !TTR get second environmental variable
 OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
 !----------------------------------------------------------------------!
@@ -229,18 +229,18 @@ DO WHILE (ITIME < ITIMEE)
     END DO
     !------------------------------------------------------------------!
     write (20,*) NIND_alive 
-    write (21, 8000) JYEAR, NIND_alive !TTR Write year and number of individuals to individual output file
+    write (22, 8000) JYEAR, NIND_alive !TTR Write year and number of individuals to individual output file
 8000 format (i5, i10) !TTR format for new WRITE statement
     !------------------------------------------------------------------!
     DO KI = 1, NIND_alive
       write (*,*) 'H9',JYEAR-YEARI+1,ki,ib(ki),H(KI),&
       &           LAIcrown(KI),r(KI),Acrown(KI)
-      write (21 ,8001) JYEAR-YEARI+1, UID (KI), ib (KI), h (KI),       & !TTR Add necessary diagnostics to output file
-                       LAIcrown (KI), r (KI), Acrown (KI), shade (KI)   !TTR Add necessary diagnostics to output file
+      write (22 ,8001) JYEAR-YEARI+1, UID (KI), ib (KI), h (KI),       & !TTR Add necessary diagnostics to output file
+                       LAIcrown (KI), r (KI), Acrown (KI), shade (KI)    !TTR Add necessary diagnostics to output file
 8001 format (2i5, i10, 5f15.7) !TTR format for new WRITE statement
     END DO ! KI = 1, NIND
     !------------------------------------------------------------------!
-    write (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
+    write (21,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
     &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
     &                        LAI,Aheart(1),ib(1),H(1)
     write ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
@@ -271,7 +271,8 @@ END DO
 !----------------------------------------------------------------------!
 ! Close model run diagnostics files.
 !----------------------------------------------------------------------!
-CLOSE (10)
+CLOSE (21) !TTR Close the annual output file
+CLOSE (22) !TTR Close the individual tree output file
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

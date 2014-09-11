@@ -5,8 +5,8 @@ set -x
 usr="TTR"
 
 if [ ${usr} == "TTR" ] ; then
-  dir="~/projects/"
-  export LD_LIBRARY_PATH=/opt/local/lib:/opt/local/include:${LD_LIBRARY_PATH}
+  dir="/Users/Waldlaeufer/projects/"
+  export LD_LIBRARY_PATH=/opt/local/lib:/opt/local/include
 elif [ ${usr} == "ADF" ] ; then
   dir="/store/" #TTR please check these 
   export LD_LIBRARY_PATH=/home/adf10/netcdf/F90/lib:${LD_LIBRARY_PATH} #TTR please check these, I think this might actually be wrong
@@ -25,7 +25,7 @@ export OUTPUT2=${dir}H9/OUTPUT/output_trees.txt
 
 #Compile the source code including netcdf
 if [ ${usr} == "TTR" ] ; then
-  gfortran *.f90 -o -g -fcheck=all -Wall -I/opt/local/include -L/opt/local/lib -lnetcdff
+  gfortran *.f90 -o H9 -g -fcheck=all -Wall -I/opt/local/include -L/opt/local/lib -lnetcdff
 elif [ ${usr} == "ADF" ] ; then
   ifort *.f90 -o H9 -I/home/adf10/netcdf/F90/include -L/home/adf10/netcdf/F90/lib -lnetcdff
 elif [ ${usr} == "adf10" ] ; then
