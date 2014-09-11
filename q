@@ -1,17 +1,18 @@
 # Bash script to run Hybrid IX depending on usr and architecture
-#set -x
+set -x
 
 # Set usr and determine architecture (ADF ; adf10 ; TTR = Tim's laptop)
 usr="TTR"
 
 if [ ${usr} == "TTR" ] ; then
   dir="~/projects/"
+  export LD_LIBRARY_PATH=/opt/local/lib:/opt/local/include:${LD_LIBRARY_PATH}
 elif [ ${usr} == "ADF" ] ; then
-  dir="/store/"
-  export LD_LIBRARY_PATH=/home/adf10/netcdf/F90/lib:${LD_LIBRARY_PATH}
+  dir="/store/" #TTR please check these 
+  export LD_LIBRARY_PATH=/home/adf10/netcdf/F90/lib:${LD_LIBRARY_PATH} #TTR please check these, I think this might actually be wrong
 elif [ ${usr} == "adf10" ] ; then
-  dir="/Users/adf10/"
-  export LD_LIBRARY_PATH=/home/adf10/netcdf/F90/lib:${LD_LIBRARY_PATH}
+  dir="/Users/adf10/" #TTR please check these
+  export LD_LIBRARY_PATH=/home/adf10/netcdf/F90/lib:${LD_LIBRARY_PATH} #TTR please check these
 fi
 
 # Change to source code directory

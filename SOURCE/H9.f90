@@ -70,6 +70,7 @@ ALLOCATE (Afoliage_above (NIND))
 ALLOCATE (ih (NIND))
 ALLOCATE (r (NIND))
 ALLOCATE (iPAR (NIND))
+ALLOCATE (shade (NIND)) !TTR Include shade as a an array to record it for each individual
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
