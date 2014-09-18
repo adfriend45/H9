@@ -228,24 +228,8 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
     END DO
     !------------------------------------------------------------------!
+    CALL write_outputs
     write (20,*) NIND_alive 
-    write (22, 8000) JYEAR, NIND_alive !TTR Write year and number of individuals to individual output file
-8000 format (i5, i10) !TTR format for new WRITE statement
-    !------------------------------------------------------------------!
-    DO KI = 1, NIND_alive
-      write (*,*) 'H9',JYEAR-YEARI+1,ki,ib(ki),H(KI),&
-      &           LAIcrown(KI),r(KI),Acrown(KI)
-      write (22 ,8001) JYEAR-YEARI+1, UID (KI), ib (KI), h (KI),       & !TTR Add necessary diagnostics to output file
-                       LAIcrown (KI), r (KI), Acrown (KI), shade (KI)    !TTR Add necessary diagnostics to output file
-8001 format (2i5, i10, 5f15.7) !TTR format for new WRITE statement
-    END DO ! KI = 1, NIND
-    !------------------------------------------------------------------!
-    write (21,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
-    &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
-    &                        LAI,Aheart(1),ib(1),H(1)
-    write ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
-    &                        1.0e3*rwidth(JYEAR-YEARI+1,1),            &
-    &                        LAI,Aheart(1),ib(1),H(1)
     !------------------------------------------------------------------!
     ! Reset plot NPP diagnostic                             (kgC/m^2/yr)
     !------------------------------------------------------------------!

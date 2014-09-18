@@ -1,5 +1,5 @@
 # Bash script to run Hybrid IX depending on usr and architecture
-set -x
+#set -x
 
 # Set usr and determine architecture (ADF ; adf10 ; TTR = Tim's laptop)
 usr="TTR"
