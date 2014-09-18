@@ -123,7 +123,7 @@ DO KI = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
-  UID (ki) = UID_counter !TTR Set the counter for the tree
+  UID (KI) = UID_counter !TTR Set the counter for the tree
   UID_counter = UID_counter + 1 !TTR Increase the counter for each tree
   NIND_alive = NIND_alive + 1
 END DO
