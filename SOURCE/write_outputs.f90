@@ -8,14 +8,15 @@ SUBROUTINE write_outputs
 !     21    - annual outputs
 !     22    - individual tree outputs
 !---------------------------------------------------------------------!
+USE CONSTANTS
 USE CONTROL
 USE TREE
 !---------------------------------------------------------------------!
 IMPLICIT NONE
 !---------------------------------------------------------------------!
 
-write (22, 8000) JYEAR, NIND_alive
-8000 format (i5, i10)
+write (22, 8000) JYEAR, NIND_alive, NYRS, NIND, Aplot
+8000 format (i5, i10, i5, i10, f8.1)
 
 INDIVIDUALS: DO KI = 1, NIND_alive
   write (22, 8001) JYEAR-YEARI+1, UID (KI), ib (KI), ih (KI),         &
