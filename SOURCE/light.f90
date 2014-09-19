@@ -40,7 +40,6 @@ INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
   ELSE
     shade (KI) = (Acrown (KI) - space) / Acrown (KI)
   END IF SHADE_fraction
-  if (JYEAR == 1828) write (99, *) h (KI), ih (KI), UID (KI), Acrown (KI), space, shade (KI), Acrowns_above (KI)
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above tree                            (m^2/m^2)
   !--------------------------------------------------------------------!
