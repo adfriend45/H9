@@ -7,3 +7,18 @@ The, when all seems good, add the full grow_up approach, and do some experiments
 Will need mortality based on carbon balance as well, at some point, and will need to add plant type variation. Thought SLA would be something to consider early on.
 Add regeneration routine (perhaps not a priority).
 
+Thursday 25th September, 2014
+-----------------------------
+Catch up on where was with this ahead of meeting with Tim.
+
+First, some key commands from the command line:
+
+git pull <remoteneame> <branchname>
+git pull https://github.com/adfriend45/H9
+
+git add EXECUTE
+git commit
+git push
+git push https://github.com/adfriend45/H9
+
+/Users/adf10/H9/git fetch https://github.com/adfriend45/H9 seemed to work
