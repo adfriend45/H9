@@ -57,7 +57,6 @@ ALLOCATE (UID       (NIND))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
 ALLOCATE (ib        (NIND))
-
 ALLOCATE (rold      (NIND))
 ALLOCATE (H         (NIND))
 ALLOCATE (Afoliage  (NIND))
@@ -106,7 +105,7 @@ DO KI = 1, NIND
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.01 + 0.001 ! Stem diameter                         (m)
+  D = RANDOM * 0.01 + 0.001  ! Stem diameter                         (m)
   r (KI) = D / 2.0           ! Stem radius                           (m)
   rold (KI) = r (KI)         ! Saved stem radius                     (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)

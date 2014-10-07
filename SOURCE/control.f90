@@ -13,6 +13,7 @@ SAVE
 INTEGER :: I  ! General loop count                                   (n)
 INTEGER :: NT ! GROW call loop count                                 (n)
 INTEGER :: KI ! Individual tree count                                (n)
+INTEGER, ALLOCATABLE :: UID (:) ! Unique ID for each tree            (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
