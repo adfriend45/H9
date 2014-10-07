@@ -26,6 +26,7 @@ DO KI = 1, NIND
       LAIcrown  (NIND_alive) = LAIcrown (KI)
       r         (NIND_alive) = r        (KI)
       iPAR      (NIND_alive) = iPAR     (KI)
+      shade     (NIND_alive) = shade    (KI)
     END IF
   END IF
 END DO

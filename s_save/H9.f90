@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 7th October, 2014
+! Date last modified : 4th August, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -22,10 +22,11 @@ USE NETCDF
 
 !----------------------------------------------------------------------!
 IMPLICIT NONE
+integer :: i
+real :: floss
 !----------------------------------------------------------------------!
-CHARACTER (LEN = 100) :: driver ! TTR The star notation is obsolete and increased the length to 100
-CHARACTER (LEN = 100) :: output ! TTR The star notation is obsolete and increased the length to 100
-INTEGER :: UID_counter = 1 !TTR Counter to give each tree an unique ID. This might have to be moved once we have regeneration
+CHARACTER driver*40
+CHARACTER output*40
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -43,7 +44,7 @@ READ (10,*) NYRS   ! Length of model run from 1/1/year1              (y)
 READ (10,*) YEARI  ! Start of model run              (calendar year, yr)
 READ (10,*) MONI   ! Start of model run                   (Julian month)
 READ (10,*) IHRI   ! Start of model run              (24-hour clock, hr)
-READ (10,*) NMONAV ! No. months in a diagnostic acc period      (months)
+READ (10,*) NMONAV ! No. months is a diagnostic acc period      (months)
 READ (10,*) NIND   ! No. trees to simulate                           (n)
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
@@ -52,35 +53,39 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (UID       (NIND)) !TTR Unique ID for each tree to identify them across years
+ALLOCATE (rwidth    (NYRS))
+ALLOCATE (fad      (11000))
+ALLOCATE (cad      (11000))
+ALLOCATE (rPAR     (11000))
 ALLOCATE (Cv        (NIND))
-ALLOCATE (Aheart    (NIND))
-ALLOCATE (ib        (NIND))
-
 ALLOCATE (rold      (NIND))
 ALLOCATE (H         (NIND))
 ALLOCATE (Afoliage  (NIND))
+ALLOCATE (Aheart    (NIND))
+ALLOCATE (rPAR_base (NIND))
+ALLOCATE (ib        (NIND))
 ALLOCATE (fPAR      (NIND))
 ALLOCATE (Acrown    (NIND))
 ALLOCATE (LAIcrown  (NIND))
-ALLOCATE (rwidth (NYRS,NIND))
-ALLOCATE (Acrowns_layers (11000))
 ALLOCATE (Acrowns_above (NIND))
 ALLOCATE (Afoliage_above (NIND))
 ALLOCATE (ih (NIND))
-ALLOCATE (r (NIND))
-ALLOCATE (iPAR (NIND))
-ALLOCATE (shade (NIND)) !TTR Include shade as a an array to record it for each individual
+ALLOCATE (Acrown_layer   (11000,NIND))
+ALLOCATE (Afoliage_layer (11000,NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-rwidth (:,:) = 0.0
+rwidth (:) = 0.0
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Close run control text file.
 !----------------------------------------------------------------------!
 CLOSE (10)
+!----------------------------------------------------------------------!
+! Close run documentation text file.
+!----------------------------------------------------------------------!
+CLOSE (20)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -99,51 +104,34 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 ! Initialise state variables.
 !----------------------------------------------------------------------!
 CALL RANDOM_SEED
-NIND_alive = 0
+LAI = 0.0 ! Plot LAI                                           (m^2/m^2)
 DO KI = 1, NIND
   CALL RANDOM_NUMBER (RANDOM)
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.01 + 0.001 ! Stem diameter                         (m)
-  r (KI) = D / 2.0           ! Stem radius                           (m)
-  rold (KI) = r (KI)         ! Saved stem radius                     (m)
-  H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
-  !--------------------------------------------------------------------!
-  ! Tree height as integer                                          (cm)
-  !--------------------------------------------------------------------!
-  ih (KI) = CEILING (100.0 * H (KI))
-  !--------------------------------------------------------------------!
+  D = RANDOM * 0.005 + 0.001 ! Stem diameter                         (m)
+  !D = RANDOM * 0.5 + 0.001 ! Stem diameter                         (m)
+  r = D / 2.0            ! Stem radius                               (m)
+  rold (KI) = r                        ! Saved stem radius           (m)
+  H (KI) = alpha * r ** beta  ! Stem height                          (m)
   ib (KI) = 0                 ! Height to base of crown             (cm)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
+  Acrown (KI) = MIN (Aplot,Acrown(KI))
   Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
-  Asapwood = PI * r (KI) ** 2  - Aheart (KI) ! Sapwood area        (m^2)
+  Asapwood = PI * r ** 2  - Aheart (KI) ! Sapwood area             (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
+  LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI         (m^2/m^2)
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
-  V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
+  V = (FORMF / 3.0)  * pi * r ** 2 * H (KI) ! Stem volume          (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
-  UID (KI) = UID_counter !TTR Set the counter for the tree
-  UID_counter = UID_counter + 1 !TTR Increase the counter for each tree
-  NIND_alive = NIND_alive + 1
 END DO
 
 !----------------------------------------------------------------------!
 ! Set up plot light profile.
 !----------------------------------------------------------------------!
 CALL light
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Set up trees and plot structure.
-!----------------------------------------------------------------------!
-CALL trees_structure
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Kill trees with no foliage area.
-!----------------------------------------------------------------------!
-CALL mortal
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -155,15 +143,11 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 ! Open model run diagnostics file.
 !----------------------------------------------------------------------!
-CALL getenv('OUTPUT',output)             
-OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number
-CALL getenv('OUTPUT2',output) !TTR get second environmental variable
-OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
+CALL getenv('OUTPUT',output)
+OPEN (10,FILE=output,STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
-WRITE (21,*) '8'            ! No. data columns in output_ann.txt !TTR Changed unit number 
-WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt !TTR Changed unit number 
-WRITE (21,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         & 
-&LAI   Aheart(1)  ib(1)    H(1)' !TTR Changed unit number 
+WRITE (10,*) '8'            ! No. data columns in output_ann.txt
+WRITE (10,*) NYRS           ! No. data lines   in output_ann.txt
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -177,7 +161,7 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
-  JDAY = 1 + MOD (ITIME / NDAY, EDPERY)   ! Julian day            (days)
+  JDAY = 1 + MOD (ITIME / NDAY, EDPERY) ! Julian day              (days)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
@@ -190,7 +174,7 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
-  ! Call GROW NITR times each ITU to grow tree stem volumes.
+  ! Call GROW NITR times each ITU.
   !--------------------------------------------------------------------!
   DO NT = 1, NITR
     CALL grow
@@ -202,43 +186,31 @@ DO WHILE (ITIME < ITIMEE)
   ! of each year.
   !--------------------------------------------------------------------!
   IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
-    !------------------------------------------------------------------!
-    ! New canopy and tree structures based on growth, space, and light.
-    !------------------------------------------------------------------!
-    CALL trees_structure
-    !------------------------------------------------------------------!
-    ! New light distribution.
-    !------------------------------------------------------------------!
-    CALL light
-    !------------------------------------------------------------------!
-    ! Kill trees with no foliage area.
-    !------------------------------------------------------------------!
-    CALL mortal
-    !------------------------------------------------------------------!
     LAI = 0.0
-    DO KI = 1, NIND_alive
-      !----------------------------------------------------------------!
-      ! Canopy LAI                                             (m^2/m^2)
-      !----------------------------------------------------------------!
+    DO KI = 1, NIND
       LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
-      !----------------------------------------------------------------!
-      ! Stem ring width                                             (mm)
-      !----------------------------------------------------------------!
-      rwidth (JYEAR-YEARI+1,KI) = (r (KI) - rold (KI))
-      !----------------------------------------------------------------!
+      LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
     END DO
-    !------------------------------------------------------------------!
-    CALL write_outputs
-    write (20,*) NIND_alive 
-    !------------------------------------------------------------------!
-    ! Reset plot NPP diagnostic                             (kgC/m^2/yr)
-    !------------------------------------------------------------------!
+    rwidth (JYEAR-YEARI+1) = (r - rold (1)) ! Stem ring width       (mm)
+    WRITE (10,'(I7,5F12.4,I7,F12.4)') JYEAR,NPP_ann_acc,Acrown(1),     &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1),              &
+    &                        LAI,Aheart(1),ib(1),H(1)
+    WRITE ( *,'(I7,5F12.4,I7,2F12.4)') JYEAR,NPP_ann_acc,Acrown(1),    &
+    &                        1.0e3*rwidth(JYEAR-YEARI+1),             &
+    &                        LAI,Aheart(1),ib(1),H(1),H(2)
     NPP_ann_acc = 0.0
-    !------------------------------------------------------------------!
-    ! Save stem radii to compute ring widths                         (m)
-    !------------------------------------------------------------------!
-    rold (:) = r (:)
-    !------------------------------------------------------------------!
+    rold (1) = r
+    CALL light
+    DO KI = 1, NIND
+      floss = (FLOAT (rPAR_base (KI)) - FLOAT (ib (KI))) / &
+      &       (        100.0 * H (KI) - FLOAT (ib (KI)))
+      floss = MAX (0.0,floss)
+      floss = MIN (1.0,floss)
+      !Aheart = Aheart + floss * Afoliage / FASA
+      !ib (KI) = MAX (ib (KI),rPAR_base (KI))
+      !write (*,*) JYEAR-YEARI+1,ki,floss,ib(ki),lai,D,Acrown
+    END DO ! KI = 1, NIND
+    !stop
   ENDIF
   !--------------------------------------------------------------------!
 
@@ -255,14 +227,7 @@ END DO
 !----------------------------------------------------------------------!
 ! Close model run diagnostics files.
 !----------------------------------------------------------------------!
-CLOSE (21) !TTR Close the annual output file
-CLOSE (22) !TTR Close the individual tree output file
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Close run documentation text file.
-!----------------------------------------------------------------------!
-CLOSE (20)
+CLOSE (10)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
