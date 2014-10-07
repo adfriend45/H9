@@ -23,9 +23,10 @@ USE NETCDF
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 !----------------------------------------------------------------------!
-CHARACTER (LEN = 100) :: driver ! TTR The star notation is obsolete and increased the length to 100
-CHARACTER (LEN = 100) :: output ! TTR The star notation is obsolete and increased the length to 100
-INTEGER :: UID_counter = 1 !TTR Counter to give each tree an unique ID. This might have to be moved once we have regeneration
+CHARACTER (LEN = 100) :: driver ! Filename for driver file.
+CHARACTER (LEN = 100) :: output ! Filename for output file.
+
+INTEGER :: UID_counter = 1 ! Tree ID for diagnostics                 (n)
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -52,7 +53,7 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (UID       (NIND)) !TTR Unique ID for each tree to identify them across years
+ALLOCATE (UID       (NIND))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
 ALLOCATE (ib        (NIND))
@@ -65,12 +66,12 @@ ALLOCATE (Acrown    (NIND))
 ALLOCATE (LAIcrown  (NIND))
 ALLOCATE (rwidth (NYRS,NIND))
 ALLOCATE (Acrowns_layers (11000))
-ALLOCATE (Acrowns_above (NIND))
+ALLOCATE (Acrowns_above  (NIND))
 ALLOCATE (Afoliage_above (NIND))
-ALLOCATE (ih (NIND))
-ALLOCATE (r (NIND))
-ALLOCATE (iPAR (NIND))
-ALLOCATE (shade (NIND)) !TTR Include shade as a an array to record it for each individual
+ALLOCATE (ih    (NIND))
+ALLOCATE (r     (NIND))
+ALLOCATE (iPAR  (NIND))
+ALLOCATE (shade (NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
