@@ -19,8 +19,12 @@ REAL :: LAI_above,space !TTR deleted shade as it is now an array with a value fo
 Acrowns_above (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
-INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
-  INDIVIDUALS_above: DO KJ = 1, NIND_alive
+!INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
+INDIVIDUALS_areas_above: DO I = 1, NIND_alive
+  KI = LIVING (I)
+  !INDIVIDUALS_above: DO KJ = 1, NIND_alive
+  INDIVIDUALS_above: DO J = 1, NIND_alive
+    KJ = LIVING (J)
     DIFFERENT: IF (KJ .NE. KI) THEN
       TALLER: IF (ih (KJ) > ih (KI)) THEN ! TTR Maybe this should be done with the float h (KI) to increase accuracy
         Acrowns_above  (KI) = Acrowns_above  (KI) + Acrown   (KJ)
@@ -53,7 +57,7 @@ INDIVIDUALS_areas_above: DO KI = 1, NIND_alive
   !--------------------------------------------------------------------!
   fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
-END DO INDIVIDUALS_areas_above ! KI = 1, NIND_alive
+END DO INDIVIDUALS_areas_above ! I = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light

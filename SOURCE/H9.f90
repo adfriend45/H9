@@ -10,7 +10,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Author             : Andrew D. Friend
 ! Date started       : 18th July, 2014
-! Date last modified : 7th October, 2014
+! Date last modified : 8th October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -54,6 +54,7 @@ WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
 ALLOCATE (UID       (NIND))
+ALLOCATE (LIVING    (NIND))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
 ALLOCATE (ib        (NIND))
@@ -100,7 +101,9 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 CALL RANDOM_SEED
 NIND_alive = 0
-DO KI = 1, NIND
+DO I = 1, NIND
+  KI = I
+  LIVING (I) = KI ! Assign index of living tree                      (n)
   CALL RANDOM_NUMBER (RANDOM)
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
@@ -123,8 +126,8 @@ DO KI = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
-  UID (KI) = UID_counter !TTR Set the counter for the tree
-  UID_counter = UID_counter + 1 !TTR Increase the counter for each tree
+  UID (KI) = UID_counter        ! Set the counter for the tree
+  UID_counter = UID_counter + 1 ! Increase the counter for each tree
   NIND_alive = NIND_alive + 1
 END DO
 
@@ -153,17 +156,17 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Open model run diagnostics file.
+! Open model run diagnostics files.
 !----------------------------------------------------------------------!
 CALL getenv('OUTPUT',output)             
-OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number
-CALL getenv('OUTPUT2',output) !TTR get second environmental variable
-OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
+OPEN (21,FILE=output,STATUS='UNKNOWN')
+CALL getenv('OUTPUT2',output)
+OPEN (22,FILE=output,STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
-WRITE (21,*) '8'            ! No. data columns in output_ann.txt !TTR Changed unit number 
-WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt !TTR Changed unit number 
+WRITE (21,*) '8'            ! No. data columns in output_ann.txt
+WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
 WRITE (21,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         & 
-&LAI   Aheart(1)  ib(1)    H(1)' !TTR Changed unit number 
+&LAI   Aheart(1)  ib(1)    H(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -216,7 +219,9 @@ DO WHILE (ITIME < ITIMEE)
     CALL mortal
     !------------------------------------------------------------------!
     LAI = 0.0
-    DO KI = 1, NIND_alive
+    !DO KI = 1, NIND_alive
+    DO I = 1, NIND_alive
+      KI = LIVING (I)
       !----------------------------------------------------------------!
       ! Canopy LAI                                             (m^2/m^2)
       !----------------------------------------------------------------!
@@ -253,16 +258,16 @@ END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Close model run diagnostics files.
-!----------------------------------------------------------------------!
-CLOSE (21) !TTR Close the annual output file
-CLOSE (22) !TTR Close the individual tree output file
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
 ! Close run documentation text file.
 !----------------------------------------------------------------------!
 CLOSE (20)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
+! Close model run diagnostics files.
+!----------------------------------------------------------------------!
+CLOSE (21) ! Close the annual output file
+CLOSE (22) ! Close the individual tree output file
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
