@@ -3,11 +3,13 @@ MODULE CONSTANTS
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 SAVE
+
 !----------------------------------------------------------------------!
 INTEGER, PARAMETER :: EDPERY =   365 ! Earth days per year     (days/yr)
 INTEGER, PARAMETER :: HPERED =    24 ! Hours per Earth day          (hr)
 INTEGER, PARAMETER :: SPERED = 86400 ! Seconds per Earth day         (s)
 INTEGER, PARAMETER :: JMPERED =   12 ! Julian months per ED     (months)
+!----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Last Julian day in each month.
@@ -28,6 +30,8 @@ REAL, PARAMETER :: a_cd      =   1.13 ! Crown area allometry       (m^2)
 REAL, PARAMETER :: b_cd      =   15.2 ! Crown area allometry     (m^2/m)
 REAL, PARAMETER :: FASA      = 1000.0 ! Foliage/sapwood area   (m^2/m^2)
 REAL, PARAMETER :: Aplot     =  200.0 ! Plot area                  (m^2)
+!----------------------------------------------------------------------!
+
 !----------------------------------------------------------------------!
 END MODULE CONSTANTS
 !======================================================================!

@@ -10,10 +10,16 @@ USE TREE
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 
-DO KI = 1, NIND_alive
+DO I = 1, NIND_alive
+KI = LIVING (I)
 
 !----------------------------------------------------------------------!
+! fPAR is the fraction of total PAR incident on the plot that is
+! absorbed by the individual.
+!----------------------------------------------------------------------!
 GPP   = 10.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
+!----------------------------------------------------------------------!
+
 !----------------------------------------------------------------------!
 ! Following just nudges trees so they do not all grow the same.
 !----------------------------------------------------------------------!

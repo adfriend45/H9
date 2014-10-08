@@ -16,7 +16,6 @@ REAL :: flap,LAIc
 !----------------------------------------------------------------------!
 ! Increase heartwood area if LAIcrown was too high for iPAR.
 !----------------------------------------------------------------------!
-!INDIVIDUALS_LAI_constraint: DO KI = 1, NIND_alive
 INDIVIDUALS_LAI_constraint: DO I = 1, NIND_alive
   KI = LIVING (I)
   !--------------------------------------------------------------------!
@@ -54,7 +53,6 @@ END DO INDIVIDUALS_LAI_constraint
 ! New structure for each tree based on new Cv, giving new height,
 ! potential crown area, and actual foliage area.
 !----------------------------------------------------------------------!
-!INDIVIDUALS_potential_crowns: DO KI = 1, NIND_alive
 INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
   KI = LIVING (I)
 !----------------------------------------------------------------------!
@@ -86,6 +84,7 @@ INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
   ! Tree height as integer                                          (cm)
   !--------------------------------------------------------------------!
   ih (KI) = CEILING (100.0 * H (KI))
+  !ib (KI) = MIN (ib(KI),ih(KI)-2)
   !--------------------------------------------------------------------!
   ! Potential crown diameter                                         (m)
   !--------------------------------------------------------------------!
@@ -104,7 +103,6 @@ END DO INDIVIDUALS_potential_crowns
 !----------------------------------------------------------------------!
 Acrowns_layers (:) = 0.0
 !----------------------------------------------------------------------!
-!DO KI = 1, NIND_alive
 DO I = 1, NIND_alive
   KI = LIVING (I)
   Acrowns_layers (ib(KI)+1:ih(KI)) = Acrowns_layers (ib(KI)+1:ih(KI))  &

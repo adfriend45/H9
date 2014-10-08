@@ -8,7 +8,7 @@ PROGRAM H9
 ! Put run control file, 'driver.txt', in /EXECUTE
 ! Use './q' to compile and run the SOURCE code.
 !----------------------------------------------------------------------!
-! Author             : Andrew D. Friend
+! Authors            : Andrew D. Friend; Tim T. Rademacher
 ! Date started       : 18th July, 2014
 ! Date last modified : 8th October, 2014
 !----------------------------------------------------------------------!
@@ -25,8 +25,8 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 CHARACTER (LEN = 100) :: driver ! Filename for driver file.
 CHARACTER (LEN = 100) :: output ! Filename for output file.
-
-INTEGER :: UID_counter = 1 ! Tree ID for diagnostics                 (n)
+INTEGER :: size
+INTEGER, ALLOCATABLE :: seed (:)
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -53,7 +53,6 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (UID       (NIND))
 ALLOCATE (LIVING    (NIND))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
@@ -99,7 +98,10 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 ! Initialise state variables.
 !----------------------------------------------------------------------!
-CALL RANDOM_SEED
+CALL RANDOM_SEED (size=size)
+ALLOCATE (seed(size))
+CALL RANDOM_SEED (put=seed)
+!CALL RANDOM_SEED
 NIND_alive = 0
 DO I = 1, NIND
   KI = I
@@ -126,8 +128,6 @@ DO I = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
-  UID (KI) = UID_counter        ! Set the counter for the tree
-  UID_counter = UID_counter + 1 ! Increase the counter for each tree
   NIND_alive = NIND_alive + 1
 END DO
 
