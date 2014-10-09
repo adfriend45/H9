@@ -22,6 +22,7 @@ cd SOURCE
 export DRIVER=${dir}H9/EXECUTE/driver.txt
 export OUTPUT=${dir}H9/OUTPUT/output_ann.txt
 export OUTPUT2=${dir}H9/OUTPUT/output_trees.txt
+export OUTPUT3=${dir}H9/OUTPUT/output_trees.nc
 
 #Compile the source code including netcdf
 if [ ${usr} == "TTR" ] ; then

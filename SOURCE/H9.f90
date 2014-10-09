@@ -37,14 +37,15 @@ OPEN (10,FILE=driver,STATUS='OLD')
 OPEN (20,FILE='run.txt',STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
 
-READ (10,*) DTSRC  ! Source time step = 1 ITU                        (s)
-READ (10,*) NITR   ! No. tree growth time steps per ITU              (n)
-READ (10,*) NYRS   ! Length of model run from 1/1/year1              (y)
-READ (10,*) YEARI  ! Start of model run              (calendar year, yr)
-READ (10,*) MONI   ! Start of model run                   (Julian month)
-READ (10,*) IHRI   ! Start of model run              (24-hour clock, hr)
-READ (10,*) NMONAV ! No. months in a diagnostic acc period      (months)
-READ (10,*) NIND   ! No. trees to simulate                           (n)
+READ (10, *) DTSRC  ! Source time step = 1 ITU                        (s)
+READ (10, *) NITR   ! No. tree growth time steps per ITU              (n)
+READ (10, *) NYRS   ! Length of model run from 1/1/year1              (y)
+READ (10, *) YEARI  ! Start of model run              (calendar year, yr)
+READ (10, *) MONI   ! Start of model run                   (Julian month)
+READ (10, *) IHRI   ! Start of model run              (24-hour clock, hr)
+READ (10, *) NMONAV ! No. months in a diagnostic acc period      (months)
+READ (10, *) NIND   ! No. trees to simulate                           (n)
+READ (10, *) F_IND_OUT ! Flag for output format of individual tree variables
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
 WRITE (20,'(A8,I10  ,A3)') 'NITR  = ',NITR ,'  n'
@@ -155,10 +156,18 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 ! Open model run diagnostics file.
 !----------------------------------------------------------------------!
-CALL getenv('OUTPUT',output)             
-OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number
-CALL getenv('OUTPUT2',output) !TTR get second environmental variable
-OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
+CALL getenv('OUTPUT',output) 
+OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number 
+IF (F_IND_OUT == 1) THEN ! Text output
+  CALL getenv('OUTPUT2',output) !TTR get second environmental variable
+  OPEN (22,FILE=output,STATUS='UNKNOWN') !TTR open individual output file. I should probably put this in a subroutine with flags so that this file is only produced when needed, because it can be very large
+ELSE IF (F_IND_OUT == 2) THEN ! netcdf output
+  CALL getenv('OUTPUT3',output) !TTR get second environmental variable
+  STATUS = nf90_create (output, NF90_NOCLOBBER, NCID) ! TTR
+  IF (STATUS /= 0) stop 'Error in creating netcdf file.' ! TTR 
+  ! TTR STATUS = nf90_def_dim (NCID, ) ! TTR
+  ! TTR if (STATUS /= 0) stop 'Error in creating dimensions for netcdf file.' ! TTR
+END IF
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt !TTR Changed unit number 
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt !TTR Changed unit number 
@@ -256,7 +265,12 @@ END DO
 ! Close model run diagnostics files.
 !----------------------------------------------------------------------!
 CLOSE (21) !TTR Close the annual output file
-CLOSE (22) !TTR Close the individual tree output file
+IF (F_IND_OUT == 1) THEN
+  CLOSE (22) !TTR Close the individual tree output file
+ELSE IF (F_IND_OUT == 2) THEN
+  STATUS = nf90_close (NCID)
+  IF (STATUS /= 0) stop 'Error occurred when closing the netcdf file.'
+END IF
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

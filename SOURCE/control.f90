@@ -50,5 +50,11 @@ INTEGER :: NIND_alive ! No. living trees                             (n)
 REAL    :: RANDOM ! Random number, 0-1                               (x)
 !----------------------------------------------------------------------!
 
+!----------------------------------------------------------------------!
+INTEGER :: F_IND_OUT                ! Flag for individual outputs 
+INTEGER :: NCID                     ! The ID for the netcdf output file
+INTEGER :: status                   ! I/O error parameter
+!----------------------------------------------------------------------!
+
 END MODULE CONTROL
 !======================================================================!
