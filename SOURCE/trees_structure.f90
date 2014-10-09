@@ -16,7 +16,8 @@ REAL :: flap,LAIc
 !----------------------------------------------------------------------!
 ! Increase heartwood area if LAIcrown was too high for iPAR.
 !----------------------------------------------------------------------!
-INDIVIDUALS_LAI_constraint: DO KI = 1, NIND_alive
+INDIVIDUALS_LAI_constraint: DO I = 1, NIND_alive
+  KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Allowable crown LAI based on incident PAR                  (m^2/m^2)
   !--------------------------------------------------------------------!
@@ -52,7 +53,8 @@ END DO INDIVIDUALS_LAI_constraint
 ! New structure for each tree based on new Cv, giving new height,
 ! potential crown area, and actual foliage area.
 !----------------------------------------------------------------------!
-INDIVIDUALS_potential_crowns: DO KI = 1, NIND_alive
+INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
+  KI = LIVING (I)
 !----------------------------------------------------------------------!
   ! Stem volume                                                    (m^3)
   !--------------------------------------------------------------------!
@@ -82,6 +84,7 @@ INDIVIDUALS_potential_crowns: DO KI = 1, NIND_alive
   ! Tree height as integer                                          (cm)
   !--------------------------------------------------------------------!
   ih (KI) = CEILING (100.0 * H (KI))
+  !ib (KI) = MIN (ib(KI),ih(KI)-2)
   !--------------------------------------------------------------------!
   ! Potential crown diameter                                         (m)
   !--------------------------------------------------------------------!
@@ -100,23 +103,26 @@ END DO INDIVIDUALS_potential_crowns
 !----------------------------------------------------------------------!
 Acrowns_layers (:) = 0.0
 !----------------------------------------------------------------------!
-DO KI = 1, NIND_alive
+DO I = 1, NIND_alive
+  KI = LIVING (I)
   Acrowns_layers (ib(KI)+1:ih(KI)) = Acrowns_layers (ib(KI)+1:ih(KI))  &
   &                                  + Acrown (KI)
 END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-DO KI = 1, NIND_alive
+!DO KI = 1, NIND_alive
+DO I = 1, NIND_alive
+  KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Crown too big? Look only at top of crown so tallest tree does not
   ! have to shrink.
   !--------------------------------------------------------------------!
-  IF (Acrowns_layers (ih(KI)) > Aplot) THEN
+  IF (Acrowns_layers (ih (KI)) > Aplot) THEN
     !------------------------------------------------------------------!
     ! Total overlap as a fraction of plot area.
     !------------------------------------------------------------------!
-    flap = Acrowns_layers(ih(KI)) / Aplot
+    flap = Acrowns_layers (ih (KI)) / Aplot
     !------------------------------------------------------------------!
     ! Reduce all crowns that contribute to this overlap by the fraction
     ! of overlap in the plot. Does this work OK?

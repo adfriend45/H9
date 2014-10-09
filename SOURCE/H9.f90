@@ -1,16 +1,17 @@
 !======================================================================!
 PROGRAM H9
 !----------------------------------------------------------------------!
-! A model to look at effects of source/sink and competition dynamics on
-! the response of natural forest to increasing atmospheric CO2.
+! A model to look at the effects of source/sink and competition
+! dynamics on the response of natural forest to increasing atmospheric
+! CO2.
 !
 ! Put source code in /SOURCE
 ! Put run control file, 'driver.txt', in /EXECUTE
 ! Use './q' to compile and run the SOURCE code.
 !----------------------------------------------------------------------!
-! Author             : Andrew D. Friend
+! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 8th August, 2014
+! Date last modified : 8th October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -23,9 +24,10 @@ USE NETCDF
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 !----------------------------------------------------------------------!
-CHARACTER (LEN = 100) :: driver ! TTR The star notation is obsolete and increased the length to 100
-CHARACTER (LEN = 100) :: output ! TTR The star notation is obsolete and increased the length to 100
-INTEGER :: UID_counter = 1 !TTR Counter to give each tree an unique ID. This might have to be moved once we have regeneration
+CHARACTER (LEN = 100) :: driver ! Filename for driver file.
+CHARACTER (LEN = 100) :: output ! Filename for output file.
+INTEGER :: size
+INTEGER, ALLOCATABLE :: seed (:)
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -53,11 +55,10 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (UID       (NIND)) !TTR Unique ID for each tree to identify them across years
+ALLOCATE (LIVING    (NIND))
 ALLOCATE (Cv        (NIND))
 ALLOCATE (Aheart    (NIND))
 ALLOCATE (ib        (NIND))
-
 ALLOCATE (rold      (NIND))
 ALLOCATE (H         (NIND))
 ALLOCATE (Afoliage  (NIND))
@@ -66,12 +67,12 @@ ALLOCATE (Acrown    (NIND))
 ALLOCATE (LAIcrown  (NIND))
 ALLOCATE (rwidth (NYRS,NIND))
 ALLOCATE (Acrowns_layers (11000))
-ALLOCATE (Acrowns_above (NIND))
+ALLOCATE (Acrowns_above  (NIND))
 ALLOCATE (Afoliage_above (NIND))
-ALLOCATE (ih (NIND))
-ALLOCATE (r (NIND))
-ALLOCATE (iPAR (NIND))
-ALLOCATE (shade (NIND)) !TTR Include shade as a an array to record it for each individual
+ALLOCATE (ih    (NIND))
+ALLOCATE (r     (NIND))
+ALLOCATE (iPAR  (NIND))
+ALLOCATE (shade (NIND))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -99,14 +100,19 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 ! Initialise state variables.
 !----------------------------------------------------------------------!
-CALL RANDOM_SEED
+CALL RANDOM_SEED (size=size)
+ALLOCATE (seed(size))
+CALL RANDOM_SEED (put=seed)
+!CALL RANDOM_SEED
 NIND_alive = 0
-DO KI = 1, NIND
+DO I = 1, NIND
+  KI = I
+  LIVING (I) = KI ! Assign index of living tree                      (n)
   CALL RANDOM_NUMBER (RANDOM)
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.01 + 0.001 ! Stem diameter                         (m)
+  D = RANDOM * 0.01 + 0.001  ! Stem diameter                         (m)
   r (KI) = D / 2.0           ! Stem radius                           (m)
   rold (KI) = r (KI)         ! Saved stem radius                     (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
@@ -124,8 +130,6 @@ DO KI = 1, NIND
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
   Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
-  UID (KI) = UID_counter !TTR Set the counter for the tree
-  UID_counter = UID_counter + 1 !TTR Increase the counter for each tree
   NIND_alive = NIND_alive + 1
 END DO
 
@@ -154,8 +158,9 @@ NPP_ann_acc = 0.0 ! Accumulated annual NPP                  (kgC/m^2/yr)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Open model run diagnostics file.
+! Open model run diagnostics files.
 !----------------------------------------------------------------------!
+<<<<<<< HEAD
 CALL getenv('OUTPUT',output) 
 OPEN (21,FILE=output,STATUS='UNKNOWN') !TTR Changed the file number 
 IF (F_IND_OUT == 1) THEN ! Text output
@@ -168,11 +173,17 @@ ELSE IF (F_IND_OUT == 2) THEN ! netcdf output
   ! TTR STATUS = nf90_def_dim (NCID, ) ! TTR
   ! TTR if (STATUS /= 0) stop 'Error in creating dimensions for netcdf file.' ! TTR
 END IF
+=======
+CALL getenv('OUTPUT',output)             
+OPEN (21,FILE=output,STATUS='UNKNOWN')
+CALL getenv('OUTPUT2',output)
+OPEN (22,FILE=output,STATUS='UNKNOWN')
+>>>>>>> FETCH_HEAD
 !----------------------------------------------------------------------!
-WRITE (21,*) '8'            ! No. data columns in output_ann.txt !TTR Changed unit number 
-WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt !TTR Changed unit number 
+WRITE (21,*) '8'            ! No. data columns in output_ann.txt
+WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
 WRITE (21,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         & 
-&LAI   Aheart(1)  ib(1)    H(1)' !TTR Changed unit number 
+&LAI   Aheart(1)  ib(1)    H(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -225,7 +236,9 @@ DO WHILE (ITIME < ITIMEE)
     CALL mortal
     !------------------------------------------------------------------!
     LAI = 0.0
-    DO KI = 1, NIND_alive
+    !DO KI = 1, NIND_alive
+    DO I = 1, NIND_alive
+      KI = LIVING (I)
       !----------------------------------------------------------------!
       ! Canopy LAI                                             (m^2/m^2)
       !----------------------------------------------------------------!
@@ -262,8 +275,9 @@ END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Close model run diagnostics files.
+! Close run documentation text file.
 !----------------------------------------------------------------------!
+<<<<<<< HEAD
 CLOSE (21) !TTR Close the annual output file
 IF (F_IND_OUT == 1) THEN
   CLOSE (22) !TTR Close the individual tree output file
@@ -271,12 +285,16 @@ ELSE IF (F_IND_OUT == 2) THEN
   STATUS = nf90_close (NCID)
   IF (STATUS /= 0) stop 'Error occurred when closing the netcdf file.'
 END IF
+=======
+CLOSE (20)
+>>>>>>> FETCH_HEAD
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Close run documentation text file.
+! Close model run diagnostics files.
 !----------------------------------------------------------------------!
-CLOSE (20)
+CLOSE (21) ! Close the annual output file
+CLOSE (22) ! Close the individual tree output file
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

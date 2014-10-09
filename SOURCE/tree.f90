@@ -28,8 +28,7 @@ REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
 REAL, ALLOCATABLE :: iPAR (:) ! Relative PAR at top of crown (fraction)
-REAL, ALLOCATABLE :: shade (:) ! Fraction of crown being shaded by higher trees !TTR record the area shaded for each tree for visulisation 
-INTEGER, ALLOCATABLE :: UID (:) !TTR Unique ID for the tree 
+REAL, ALLOCATABLE :: shade (:) ! Fraction of crown being shaded by higher trees !TTR record the area shaded for each tree for visulisation
 !----------------------------------------------------------------------!
 ! Internal intermediate variables.
 !----------------------------------------------------------------------!

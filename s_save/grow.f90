@@ -10,23 +10,10 @@ USE TREE
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 
-DO I = 1, NIND_alive
-KI = LIVING (I)
+DO KI = 1, NIND
 
 !----------------------------------------------------------------------!
-! fPAR is the fraction of total PAR incident on the plot that is
-! absorbed by the individual.
-!----------------------------------------------------------------------!
-GPP   = 10.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Following just nudges trees so they do not all grow the same.
-!----------------------------------------------------------------------!
-CALL RANDOM_NUMBER (RANDOM)
-!----------------------------------------------------------------------!
-GPP = GPP * (0.9 + RANDOM / 5.0)
-!----------------------------------------------------------------------!
+GPP   = 20.0e-6 * fPAR (KI) ! Crown gross photosynthesis    (umol/m^2/s)
 Resp  = 0.5 * GPP ! Maintenance respiration                 (umol/m^2/s)
 !----------------------------------------------------------------------!
 
@@ -50,12 +37,31 @@ Cv (KI) = Cv (KI) + DTTR * dCv
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Accumulate annual diagnostics.
-!----------------------------------------------------------------------!
-NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
+V = Cv (KI) / SIGC ! Stem volume                                   (m^3)
 !----------------------------------------------------------------------!
 
-END DO ! KI = 1, NIND_alive
+!----------------------------------------------------------------------!
+! Update variables                                                   (m)
+!----------------------------------------------------------------------!
+! Stem radius                                                         (m)
+r = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
+Asapwood = PI * r ** 2 - Aheart (KI) ! Sapwood area                (m^2)
+D = 2.0 * r                       ! Stem diameter                    (m)
+H (KI) = alpha * r ** beta        ! Stem height                      (m)
+Dcrown = a_cd + b_cd * D          ! Crown diameter                   (m)
+Acrown (KI) = PI * (Dcrown / 2.0) ** 2 ! Crown area                (m^2)
+Acrown (KI) = MIN (Aplot,Acrown(KI))
+Afoliage (KI) = FASA * Asapwood   ! Foliage area                   (m^2)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
+! Accumulate annual diagnostics.
+!----------------------------------------------------------------------!
+!NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Aplot + EPS)
+NPP_ann_acc = NPP_ann_acc + DTTR * Cup / (Acrown (1) + EPS)
+!----------------------------------------------------------------------!
+
+END DO ! KI = 1, NIND
 
 !----------------------------------------------------------------------!
 END SUBROUTINE grow
