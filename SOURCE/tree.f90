@@ -6,15 +6,15 @@ SAVE
 !----------------------------------------------------------------------!
 ! State variables.
 !----------------------------------------------------------------------!
-REAL, ALLOCATABLE :: Cv     (:) ! Tree structural carbon            (kg)
-REAL, ALLOCATABLE :: Aheart (:) ! Heartwood area                   (m^2)
+INTEGER, ALLOCATABLE :: LIVING (:) ! Indices of living trees         (n)
+REAL,    ALLOCATABLE :: Cv     (:) ! Tree structural carbon         (kg)
+REAL,    ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
 !----------------------------------------------------------------------!
 INTEGER, ALLOCATABLE :: ib (:) ! Height to base of crown            (cm)
 !----------------------------------------------------------------------!
 ! Derived tree variables.
 !----------------------------------------------------------------------!
 INTEGER, ALLOCATABLE :: ih (:) ! Crown height                       (cm)
-INTEGER :: base ! PAR-limited height to base of crown               (cm)
 !----------------------------------------------------------------------!
 REAL, ALLOCATABLE :: rwidth   (:,:) ! Stem ring width               (mm)
 REAL, ALLOCATABLE :: Acrowns_layers (:)
