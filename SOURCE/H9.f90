@@ -1,14 +1,15 @@
 !======================================================================!
 PROGRAM H9
 !----------------------------------------------------------------------!
-! A model to look at effects of source/sink and competition dynamics on
-! the response of natural forest to increasing atmospheric CO2.
+! A model to look at the effects of source/sink and competition
+! dynamics on the response of natural forest to increasing atmospheric
+! CO2.
 !
 ! Put source code in /SOURCE
 ! Put run control file, 'driver.txt', in /EXECUTE
 ! Use './q' to compile and run the SOURCE code.
 !----------------------------------------------------------------------!
-! Authors            : Andrew D. Friend; Tim T. Rademacher
+! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
 ! Date last modified : 8th October, 2014
 !----------------------------------------------------------------------!

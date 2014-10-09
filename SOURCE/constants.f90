@@ -20,10 +20,10 @@ INTEGER, PARAMETER :: JDENDOFM (0:JMPERED) = &
 
 !----------------------------------------------------------------------!
 REAL, PARAMETER :: EPS       = 1.0E-8 ! Epsilon for FPops            (x)
-REAL, PARAMETER :: PI        = 3.1416 ! Ratio of circ to diam'   (ratio)
+REAL, PARAMETER :: PI        = 3.1416 ! Ratio of circ' to diam'  (ratio)
 REAL, PARAMETER :: KGCPERMOL =  0.012 ! Kg C per mol C          (kg/mol)
-REAL, PARAMETER :: FORMF     =    1.0 ! Stem form factor      (unitless)
-REAL, PARAMETER :: SIGC      =  350.0 ! Stem wood density      (kgC/m^3)
+REAL, PARAMETER :: FORMF     =    1.0 ! Tree form factor      (unitless)
+REAL, PARAMETER :: SIGC      =  350.0 ! Wood density           (kgC/m^3)
 REAL, PARAMETER :: alpha     =   59.8 ! Height allometery     (unitless)
 REAL, PARAMETER :: beta      =  0.769 ! Height allometery     (unitless)
 REAL, PARAMETER :: a_cd      =   1.13 ! Crown area allometry       (m^2)
