@@ -88,8 +88,7 @@ INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Height to base of crown from foliage area                       (cm)
   !--------------------------------------------------------------------!
-  ib (KI) = ih (KI) - NINT (100.0 * Afoliage (KI) / &
-  &         (SIGAF * Acrown (KI)))
+  ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI)))
   ib (KI) = MIN (ib(KI),ih(KI)-2)
   ib (KI) = MAX (ib(KI),0)
   !--------------------------------------------------------------------!

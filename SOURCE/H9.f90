@@ -11,7 +11,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 8th October, 2014
+! Date last modified : 9th October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -39,15 +39,15 @@ OPEN (10,FILE=driver,STATUS='OLD')
 OPEN (20,FILE='run.txt',STATUS='UNKNOWN')
 !----------------------------------------------------------------------!
 
-READ (10, *) DTSRC  ! Source time step = 1 ITU                        (s)
-READ (10, *) NITR   ! No. tree growth time steps per ITU              (n)
-READ (10, *) NYRS   ! Length of model run from 1/1/year1              (y)
-READ (10, *) YEARI  ! Start of model run              (calendar year, yr)
-READ (10, *) MONI   ! Start of model run                   (Julian month)
-READ (10, *) IHRI   ! Start of model run              (24-hour clock, hr)
-READ (10, *) NMONAV ! No. months in a diagnostic acc period      (months)
-READ (10, *) NIND   ! No. trees to simulate                           (n)
-READ (10, *) F_OUT  ! Output flag for individual tree variable format
+READ (10,*) DTSRC    ! Source time step = 1 ITU                      (s)
+READ (10,*) NITR     ! No. tree growth time steps per ITU            (n)
+READ (10,*) NYRS     ! Length of model run from 1/1/year1            (y)
+READ (10,*) YEARI    ! Start of model run            (calendar year, yr)
+READ (10,*) MONI     ! Start of model run                 (Julian month)
+READ (10,*) IHRI     ! Start of model run            (24-hour clock, hr)
+READ (10,*) NMONAV   ! No. months in a diagnostic acc period    (months)
+READ (10,*) NIND_max ! Max No. trees to simulate                     (n)
+READ (10,*) F_OUT    ! Output flag for individual tree variable format
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
 WRITE (20,'(A8,I10  ,A3)') 'NITR  = ',NITR ,'  n'
@@ -55,24 +55,24 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-ALLOCATE (LIVING    (NIND))
-ALLOCATE (Cv        (NIND))
-ALLOCATE (Aheart    (NIND))
-ALLOCATE (ib        (NIND))
-ALLOCATE (rold      (NIND))
-ALLOCATE (H         (NIND))
-ALLOCATE (Afoliage  (NIND))
-ALLOCATE (fPAR      (NIND))
-ALLOCATE (Acrown    (NIND))
-ALLOCATE (LAIcrown  (NIND))
-ALLOCATE (rwidth (NYRS,NIND))
+ALLOCATE (LIVING    (NIND_max))
+ALLOCATE (Cv        (NIND_max))
+ALLOCATE (Aheart    (NIND_max))
+ALLOCATE (ib        (NIND_max))
+ALLOCATE (rold      (NIND_max))
+ALLOCATE (H         (NIND_max))
+ALLOCATE (Afoliage  (NIND_max))
+ALLOCATE (fPAR      (NIND_max))
+ALLOCATE (Acrown    (NIND_max))
+ALLOCATE (LAIcrown  (NIND_max))
+ALLOCATE (ih        (NIND_max))
+ALLOCATE (r         (NIND_max))
+ALLOCATE (iPAR      (NIND_max))
+ALLOCATE (shade     (NIND_max))
+ALLOCATE (rwidth    (NYRS,NIND_max))
 ALLOCATE (Acrowns_layers (11000))
-ALLOCATE (Acrowns_above  (NIND))
-ALLOCATE (Afoliage_above (NIND))
-ALLOCATE (ih    (NIND))
-ALLOCATE (r     (NIND))
-ALLOCATE (iPAR  (NIND))
-ALLOCATE (shade (NIND))
+ALLOCATE (Acrowns_above  (NIND_max))
+ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -105,7 +105,7 @@ ALLOCATE (seed(size))
 CALL RANDOM_SEED (put=seed)
 !CALL RANDOM_SEED
 NIND_alive = 0
-DO I = 1, NIND
+DO I = 1, NIND_max
   KI = I
   LIVING (I) = KI ! Assign index of living tree                      (n)
   CALL RANDOM_NUMBER (RANDOM)
@@ -124,12 +124,12 @@ DO I = 1, NIND
   ib (KI) = 0                 ! Height to base of crown             (cm)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
-  Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
+  Aheart (KI)= 0.0            ! Heartwood area                     (m^2)
   Asapwood = PI * r (KI) ** 2  - Aheart (KI) ! Sapwood area        (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
-  Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
+  Cv (KI) = SIGC * V          ! Stem carbon                         (kg)
   NIND_alive = NIND_alive + 1
 END DO
 
@@ -166,6 +166,8 @@ IF (F_OUT == 1) THEN ! Output a txt file
   CALL getenv('OUTPUT2',output)
   OPEN (22,FILE=output,STATUS='UNKNOWN')
 END IF
+OPEN (23,FILE='/store/H9/OUTPUT/diag.txt')
+WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
@@ -272,6 +274,7 @@ CLOSE (20)
 !----------------------------------------------------------------------!
 CLOSE (21) ! Close the annual output file
 IF (F_OUT == 1) CLOSE (22) ! Close the individual tree output file
+CLOSE (23)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
