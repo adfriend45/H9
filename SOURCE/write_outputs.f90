@@ -16,7 +16,7 @@ USE TREE
 IMPLICIT NONE
 !---------------------------------------------------------------------!
 
-write (22, 8000) JYEAR, NIND_alive, NYRS, NIND_max, Aplot
+IF (F_OUT == 1) WRITE (22,8000) JYEAR,NIND_alive,NYRS,NIND_max,Aplot
 8000 format (i5, i10, i5, i10, f8.1)
 
 INDIVIDUALS: DO I = 1, NIND_alive
