@@ -28,6 +28,8 @@ INTEGER :: MONI     ! Start of model run                  (Julian month)
 INTEGER :: IHRI     ! Start of model run                (24-hr clock hr)
 INTEGER :: NMONAV   ! No. months in a diagnostic acc period     (months)
 INTEGER :: NIND_max ! Max. no. trees to simulate                     (n)
+INTEGER :: NIND     ! Initial number of trees                        (n)
+INTEGER :: F_OUT    ! Output flag for individuals    (0 = none; 1 = txt)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -51,12 +53,5 @@ INTEGER :: MONTHS     ! No. months run in year                  (months)
 INTEGER :: NIND_alive ! No. living trees                             (n)
 REAL    :: RANDOM     ! Random number, 0-1                           (x)
 !----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-INTEGER :: F_IND_OUT                ! Flag for individual outputs 
-INTEGER :: NCID                     ! The ID for the netcdf output file
-INTEGER :: status                   ! I/O error parameter
-!----------------------------------------------------------------------!
-
 END MODULE CONTROL
 !======================================================================!
