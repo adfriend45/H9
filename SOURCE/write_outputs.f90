@@ -30,10 +30,12 @@ END DO INDIVIDUALS
 write (21, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
                  1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),    &
                  ib (1), h (1)
-write (*, 8002) JYEAR, NPP_ann_acc, Acrown (211),                      &
-                 1.0e3*rwidth (JYEAR-YEARI+1, 211), LAI, Aheart (211),   &
-                 ib (211), h (211)
+write (*, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
+                 1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),   &
+                 ib (1), h (1)
 8002 format (i7, 5f12.4, i7, f12.4)
+
+WRITE (23,*) JYEAR,Cv(1),Aheart(1),ib(1),ih(1)
 
 !---------------------------------------------------------------------!
 END SUBROUTINE write_outputs

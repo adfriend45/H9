@@ -37,13 +37,13 @@ INDIVIDUALS_LAI_constraint: DO I = 1, NIND_alive
     Aheart (KI) = Aheart (KI) + floss * Afoliage (KI) / FASA
     !------------------------------------------------------------------!
     ! Increase height to base of crown to maintain foliage area
-    ! vertical density.                                             (cm)
+    ! vertical density if heartwood area has increased.             (cm)
     !------------------------------------------------------------------!
-    base = FLOOR (floss * (100.0 * H (KI) - &
-           FLOAT (ib (KI)))) + ib (KI)
-    base = MIN (CEILING(100.0*H(KI)),base)
-    ib (KI) = MAX (ib(KI),base)
-    ib (KI) = MIN (ib(KI),ih(KI)-2)
+    !base = FLOOR (floss * (100.0 * H (KI) - &
+    !       FLOAT (ib (KI)))) + ib (KI)
+    !base = MIN (CEILING(100.0*H(KI)),base)
+    !ib (KI) = MAX (ib(KI),base)
+    !ib (KI) = MIN (ib(KI),ih(KI)-2)
     !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
@@ -85,7 +85,13 @@ INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
   ! Tree height as integer                                          (cm)
   !--------------------------------------------------------------------!
   ih (KI) = CEILING (100.0 * H (KI))
-  !ib (KI) = MIN (ib(KI),ih(KI)-2)
+  !--------------------------------------------------------------------!
+  ! Height to base of crown from foliage area                       (cm)
+  !--------------------------------------------------------------------!
+  ib (KI) = ih (KI) - NINT (100.0 * Afoliage (KI) / &
+  &         (SIGAF * Acrown (KI)))
+  ib (KI) = MIN (ib(KI),ih(KI)-2)
+  ib (KI) = MAX (ib(KI),0)
   !--------------------------------------------------------------------!
   ! Potential crown diameter                                         (m)
   !--------------------------------------------------------------------!

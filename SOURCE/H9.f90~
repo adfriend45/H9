@@ -123,12 +123,12 @@ DO I = 1, NIND_max
   ib (KI) = 0                 ! Height to base of crown             (cm)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
-  Aheart (KI)= 0.0                     ! Heartwood area            (m^2)
+  Aheart (KI)= 0.0            ! Heartwood area                     (m^2)
   Asapwood = PI * r (KI) ** 2  - Aheart (KI) ! Sapwood area        (m^2)
   Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
-  Cv (KI) = SIGC * V                   ! Stem carbon                (kg)
+  Cv (KI) = SIGC * V          ! Stem carbon                         (kg)
   NIND_alive = NIND_alive + 1
 END DO
 
@@ -163,6 +163,8 @@ CALL getenv('OUTPUT',output)
 OPEN (21,FILE=output,STATUS='UNKNOWN')
 CALL getenv('OUTPUT2',output)
 OPEN (22,FILE=output,STATUS='UNKNOWN')
+OPEN (23,FILE='/store/H9/OUTPUT/diag.txt')
+WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
@@ -269,6 +271,7 @@ CLOSE (20)
 !----------------------------------------------------------------------!
 CLOSE (21) ! Close the annual output file
 CLOSE (22) ! Close the individual tree output file
+CLOSE (23)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
