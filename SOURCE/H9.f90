@@ -47,6 +47,13 @@ READ (10,*) MONI     ! Start of model run                 (Julian month)
 READ (10,*) IHRI     ! Start of model run            (24-hour clock, hr)
 READ (10,*) NMONAV   ! No. months in a diagnostic acc period    (months)
 READ (10,*) NIND_max ! Max No. trees to simulate                     (n)
+READ (10,*) DZ_CROWN ! Crown depth division                         (mm)
+
+!----------------------------------------------------------------------!
+! Crown depth division                                               (m)
+!----------------------------------------------------------------------!
+DZ_CROWN_M = DZ_CROWN / 1000.0
+!----------------------------------------------------------------------!
 
 WRITE (20,'(A8,F10.2,A3)') 'DTSRC = ',DTSRC,'  s'
 WRITE (20,'(A8,I10  ,A3)') 'NITR  = ',NITR ,'  n'
@@ -69,11 +76,13 @@ ALLOCATE (r         (NIND_max))
 ALLOCATE (iPAR      (NIND_max))
 ALLOCATE (shade     (NIND_max))
 ALLOCATE (rwidth    (NYRS,NIND_max))
-ALLOCATE (Acrowns_layers (11000))
+ALLOCATE (Acrowns_layers (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
 ALLOCATE (Acrowns_above  (NIND_max))
 ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
 
+!----------------------------------------------------------------------!
+! Initialise all annual stem ring widths in all trees and years      (m)
 !----------------------------------------------------------------------!
 rwidth (:,:) = 0.0
 !----------------------------------------------------------------------!
@@ -116,11 +125,11 @@ DO I = 1, NIND_max
   rold (KI) = r (KI)         ! Saved stem radius                     (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
   !--------------------------------------------------------------------!
-  ! Tree height as integer                                          (cm)
+  ! Tree height as integer                                    (DZ_CROWN)
   !--------------------------------------------------------------------!
-  ih (KI) = CEILING (100.0 * H (KI))
+  ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  ib (KI) = 0                 ! Height to base of crown             (cm)
+  ib (KI) = 0                 ! Height to base of crown             (mm)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
   Aheart (KI)= 0.0            ! Heartwood area                     (m^2)
@@ -221,16 +230,21 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     CALL mortal
     !------------------------------------------------------------------!
+    ! Initialise plot LAI diagnostic                           (m^2/m^2)
+    !------------------------------------------------------------------!
     LAI = 0.0
-    !DO KI = 1, NIND_alive
+    !------------------------------------------------------------------!
     DO I = 1, NIND_alive
+      !----------------------------------------------------------------!
+      ! Assign index of living tree                                  (n)
+      !----------------------------------------------------------------!
       KI = LIVING (I)
       !----------------------------------------------------------------!
-      ! Canopy LAI                                             (m^2/m^2)
+      ! Accumulate plot LAI across individuals                 (m^2/m^2)
       !----------------------------------------------------------------!
       LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
       !----------------------------------------------------------------!
-      ! Stem ring width                                             (mm)
+      ! Stem annual ring width                                       (m)
       !----------------------------------------------------------------!
       rwidth (JYEAR-YEARI+1,KI) = (r (KI) - rold (KI))
       !----------------------------------------------------------------!
@@ -243,7 +257,7 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     NPP_ann_acc = 0.0
     !------------------------------------------------------------------!
-    ! Save stem radii to compute ring widths                         (m)
+    ! Save stem radii for ring width computation                     (m)
     !------------------------------------------------------------------!
     rold (:) = r (:)
     !------------------------------------------------------------------!

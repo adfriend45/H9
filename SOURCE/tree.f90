@@ -7,22 +7,22 @@ SAVE
 ! State variables.
 !----------------------------------------------------------------------!
 INTEGER, ALLOCATABLE :: LIVING (:) ! Indices of living trees         (n)
-INTEGER, ALLOCATABLE :: ib     (:) ! Height to base of crown        (cm)
-REAL,    ALLOCATABLE :: Cv     (:) ! Tree structural carbon         (kg)
-REAL,    ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
+INTEGER, ALLOCATABLE :: ib     (:) ! Height to base of crown  (DZ_CROWN)
+REAL   , ALLOCATABLE :: Cv     (:) ! Tree structural carbon         (kg)
+REAL   , ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
 !----------------------------------------------------------------------!
 ! Derived tree variables.
 !----------------------------------------------------------------------!
-INTEGER, ALLOCATABLE :: ih (:) ! Crown height                       (cm)
-!----------------------------------------------------------------------!
-REAL, ALLOCATABLE :: rwidth   (:,:) ! Stem ring width               (mm)
-REAL, ALLOCATABLE :: Acrowns_layers (:)
+INTEGER, ALLOCATABLE :: ih     (:)   ! Crown height           (DZ_CROWN)
+REAL   , ALLOCATABLE :: rwidth (:,:) ! Stem ring width               (m)
+REAL   , ALLOCATABLE :: Acrowns_layers (:) ! Tot crown area/layer  (m^2)
+
 REAL, ALLOCATABLE :: rold     (:) ! Saved stem radius                (m)
 REAL, ALLOCATABLE :: H        (:) ! Stem height                      (m)
 REAL, ALLOCATABLE :: Afoliage (:) ! Foliage area                   (m^2)
 REAL, ALLOCATABLE :: fPAR (:) ! fPAR for each tree (fraction)
 REAL, ALLOCATABLE :: Acrown (:)   ! Tree crown area                (m^2)
-REAL, ALLOCATABLE :: LAIcrown (:) ! Tree crown LAI            (m^2/m^2)
+REAL, ALLOCATABLE :: LAIcrown (:) ! Tree crown LAI             (m^2/m^2)
 REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)

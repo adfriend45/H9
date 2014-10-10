@@ -14,7 +14,6 @@ INTEGER :: I  ! For general local use                                (n)
 INTEGER :: J  ! For general local use                                (n)
 INTEGER :: NT ! GROW call loop count                                 (n)
 INTEGER :: KI ! Individual tree index                                (n)
-INTEGER, ALLOCATABLE :: LIVING (:) ! Indices of living trees         (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -28,6 +27,7 @@ INTEGER :: MONI     ! Start of model run                  (Julian month)
 INTEGER :: IHRI     ! Start of model run                (24-hr clock hr)
 INTEGER :: NMONAV   ! No. months in a diagnostic acc period     (months)
 INTEGER :: NIND_max ! Max. no. trees to simulate                     (n)
+INTEGER :: DZ_CROWN ! Crown depth division                          (mm)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

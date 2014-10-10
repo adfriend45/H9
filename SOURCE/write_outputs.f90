@@ -35,7 +35,17 @@ write (*, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
                  ib (1), h (1)
 8002 format (i7, 5f12.4, i7, f12.4)
 
-WRITE (23,*) JYEAR,Cv(1),Aheart(1),ib(1),ih(1)
+KI = LIVING (1)
+WRITE (23,8003) JYEAR,Cv(KI),Aheart(KI),FLOAT(ib(KI))* &
+&            DZ_CROWN_M,FLOAT(ih(KI))* &
+&            DZ_CROWN_M,Acrown(KI), &
+&            Afoliage(KI), &
+&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI))* &
+&            DZ_CROWN_M), &
+&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI)-ib(KI))* &
+&            DZ_CROWN_M),&
+&            1.0e4*rwidth(JYEAR-YEARI+1,KI)
+8003 FORMAT (I5,9F12.4)
 
 !---------------------------------------------------------------------!
 END SUBROUTINE write_outputs
