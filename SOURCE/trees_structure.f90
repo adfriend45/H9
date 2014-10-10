@@ -114,7 +114,7 @@ INDIVIDUALS_squeeze: DO I = 1, NIND_alive
   KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Crown too big? Look only at top of crown so tallest tree does not
-  ! have to shrink.
+  ! have to shrink unless it is too big for plot itself.
   !--------------------------------------------------------------------!
   IF (Acrowns_layers (ih (KI)) > Aplot) THEN
     !------------------------------------------------------------------!
