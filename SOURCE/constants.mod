@@ -1,5 +1,5 @@
 GFORTRAN module version '10' created from constants.f90
-MD5:6c9a112d9bc1772a3277cc62a1f9e3e4 -- If you edit this, you'll get what you deserve.
+MD5:a983bba82b4187b040dde18b764c39e5 -- If you edit this, you'll get what you deserve.
 
 (() () () () () () () () () () () () () () () () () () () () () () () ()
 () () ())
@@ -70,14 +70,18 @@ REAL 4 0 0 0 REAL ()) 0 '0.3126e98@-1') () 0 () () () 0 0)
 16 'pi' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC UNKNOWN
 IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (CONSTANT (REAL 4 0 0 0
 REAL ()) 0 '0.3243fe4@1') () 0 () () () 0 0)
-17 'sigc' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
+17 'sigaf' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
+UNKNOWN IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (CONSTANT (
+REAL 4 0 0 0 REAL ()) 0 '0.47ae148@0') () 0 () () () 0 0)
+18 'sigc' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN IMPLICIT-SAVE 0 0) (REAL 4 0 0 0 REAL ()) 0 0 () (CONSTANT (
 REAL 4 0 0 0 REAL ()) 0 '0.15e0000@3') () 0 () () () 0 0)
-18 'spered' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
+19 'spered' 'constants' '' 1 ((PARAMETER UNKNOWN-INTENT UNKNOWN-PROC
 UNKNOWN IMPLICIT-SAVE 0 0) (INTEGER 4 0 0 0 INTEGER ()) 0 0 () (
 CONSTANT (INTEGER 4 0 0 0 INTEGER ()) 0 '86400') () 0 () () () 0 0)
 )
 
 ('a_cd' 0 2 'alpha' 0 3 'aplot' 0 4 'b_cd' 0 5 'beta' 0 6 'constants' 0
 7 'edpery' 0 8 'eps' 0 9 'fasa' 0 10 'formf' 0 11 'hpered' 0 12 'jdendofm'
-0 13 'jmpered' 0 14 'kgcpermol' 0 15 'pi' 0 16 'sigc' 0 17 'spered' 0 18)
+0 13 'jmpered' 0 14 'kgcpermol' 0 15 'pi' 0 16 'sigaf' 0 17 'sigc' 0 18
+'spered' 0 19)

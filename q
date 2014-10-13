@@ -1,5 +1,5 @@
 # bash script to run HYBRID9 on different systems.
-set -x 
+#set -x 
 
 # Grab local path to see which system we are on, and use this to determine which
 # options are appropriate.

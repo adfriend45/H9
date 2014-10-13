@@ -47,6 +47,7 @@ READ (10,*) MONI     ! Start of model run                 (Julian month)
 READ (10,*) IHRI     ! Start of model run            (24-hour clock, hr)
 READ (10,*) NMONAV   ! No. months in a diagnostic acc period    (months)
 READ (10,*) NIND_max ! Max No. trees to simulate                     (n)
+READ (10,*) F_OUT    ! Flag for individual output file   (0=none; 1=txt)
 READ (10,*) DZ_CROWN ! Crown depth division                         (mm)
 
 !----------------------------------------------------------------------!
@@ -174,7 +175,7 @@ IF (F_OUT == 1) THEN ! Output a txt file
   CALL getenv('OUTPUT2',output)
   OPEN (22,FILE=output,STATUS='UNKNOWN')
 END IF
-OPEN (23,FILE='/store/H9/OUTPUT/diag.txt')
+ OPEN (23,FILE='/store/H9/OUTPUT/diag.txt') ! TTR This is specific to your architecture and caused problems, when I compiled it.
 WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
