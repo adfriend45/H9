@@ -19,16 +19,17 @@ INTEGER :: KI ! Individual tree index                                (n)
 !----------------------------------------------------------------------!
 ! Input from driver.txt.
 !----------------------------------------------------------------------!
-REAL    :: DTSRC    ! Source time step (= 1 ITU)                     (s)
-INTEGER :: NITR     ! No. tree growth time steps per ITU             (n)
-INTEGER :: NYRS     ! No. years to simulate                          (y)
-INTEGER :: YEARI    ! Start of model run                   (calendar yr)
-INTEGER :: MONI     ! Start of model run                  (Julian month)
-INTEGER :: IHRI     ! Start of model run                (24-hr clock hr)
-INTEGER :: NMONAV   ! No. months in a diagnostic acc period     (months)
-INTEGER :: NIND_max ! Max. no. trees to simulate                     (n)
-INTEGER :: NIND     ! Initial number of trees                        (n)
-INTEGER :: F_OUT    ! Output flag for individuals    (0 = none; 1 = txt)
+REAL    :: DTSRC      ! Source time step (= 1 ITU)                   (s)
+REAL    :: DZ_CROWN_m ! Crown depth division                         (m)
+INTEGER :: NITR       ! No. tree growth time steps per ITU           (n)
+INTEGER :: NYRS       ! No. years to simulate                        (y)
+INTEGER :: YEARI      ! Start of model run                 (calendar yr)
+INTEGER :: MONI       ! Start of model run                (Julian month)
+INTEGER :: IHRI       ! Start of model run              (24-hr clock hr)
+INTEGER :: NMONAV     ! No. months in a diagnostic acc period   (months)
+INTEGER :: NIND_max   ! Max. no. trees to simulate                   (n)
+INTEGER :: DZ_CROWN   ! Crown depth division                        (mm)
+INTEGER :: F_OUT      ! Output flag for individuals  (0 = none; 1 = txt)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
