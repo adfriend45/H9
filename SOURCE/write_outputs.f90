@@ -11,28 +11,31 @@ SUBROUTINE write_outputs
 USE CONSTANTS
 USE CONTROL
 USE TREE
+
 !---------------------------------------------------------------------!
 IMPLICIT NONE
 !---------------------------------------------------------------------!
 
-write (22, 8000) JYEAR, NIND_alive, NYRS, NIND_max, Aplot
+IF (F_OUT == 1) WRITE (22,8000) JYEAR,NIND_alive,NYRS,NIND_max,Aplot
 8000 format (i5, i10, i5, i10, f8.1)
 
 INDIVIDUALS: DO I = 1, NIND_alive
   KI = LIVING (I)
-  write (22, 8001) JYEAR-YEARI+1, KI, ib (KI), ih (KI),         &
-                   LAIcrown (KI), r (KI), Acrown (KI), shade (KI)
-!  write (*, 8001)  JYEAR-YEARI+1, KI, ib (KI), ih (KI),              &
+  IF (F_OUT == 1) THEN
+    WRITE (22, 8001) JYEAR-YEARI+1, KI, ib (KI), ih (KI),            &
+                     LAIcrown (KI), r (KI), Acrown (KI), shade (KI)
+  END IF
+!  WRITE (*, 8001)  JYEAR-YEARI+1, KI, ib (KI), ih (KI),              &
 !                   LAIcrown (KI), r (KI), Acrown (KI), shade (KI)
 END DO INDIVIDUALS
 8001 format (4i5, 4f15.7)
 
-write (21, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
-                 1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),    &
+WRITE (21, 8002) JYEAR, NPP_ann_acc, Acrown (1),                     &
+                 1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),   &
                  ib (1), h (1)
-!write (*, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
-!                 1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),   &
-!                 ib (1), h (1)
+!WRITE (*, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
+!                1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),    &
+!                ib (1), h (1)
 8002 format (i7, 5f12.4, i7, f12.4)
 
 KI = LIVING (1)

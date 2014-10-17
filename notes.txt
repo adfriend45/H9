@@ -6,7 +6,6 @@ Next need to check that the crown area packing is working OK (draw movie of the 
 Then, when all seems good, add the full grow_up approach, and do some experiments! Add as an option, rather than overwrite what already works.
 Will need mortality based on carbon balance as well, at some point, and will need to add plant type variation. Thought SLA would be something to consider early on.
 Add regeneration routine (perhaps not a priority).
-<<<<<<< HEAD
 
 Thursday 25th September, 2014
 -----------------------------
