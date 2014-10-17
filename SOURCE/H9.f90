@@ -287,7 +287,7 @@ CLOSE (20)
 ! Close model run diagnostics files.
 !----------------------------------------------------------------------!
 CLOSE (21) ! Close the annual output file
-IF (F_OUT == 1) CLOSE (22) ! Close the individual tree output file
+IF (F_OUT == 1) CLOSE (22) ! Close the individual tree output file.
 CLOSE (23)
 !----------------------------------------------------------------------!
 
