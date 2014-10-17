@@ -1,0 +1,10 @@
+3600.0 ; DTSRC    ; Source time step (= 1 ITU: Internal Time Units)           (s)
+     2 ; NITR     ; No. tree biology time steps per ITU                       (n)
+   200 ; NYRS     ; No. years to simulate                                     (y)
+  1800 ; YEARI    ; Start of model run                        (calendar year, yr)
+     1 ; MONI     ; Start of model run                             (Julian month)
+     0 ; IHRI     ; Start of model run                          (24-hr clock, hr)
+    12 ; NMONAV   ; No. months in a diagnostic acc period                (months)
+  2000 ; NIND_max ; No. trees to simulate                                     (n)
+     0 ; F_OUT    ; Individual tree diagonstics output flag (0=none; 1=txt; 2=nc)
+   100 ; DZ_CROWN ; Crown depth division                                     (mm) ! TTR added random value so that it compiles and I can test the changes to write_output.f90
