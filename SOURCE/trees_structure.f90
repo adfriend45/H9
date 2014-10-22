@@ -128,6 +128,8 @@ INDIVIDUALS_squeeze: DO I = 1, NIND_alive
     ! of overlap in the plot. Does this work OK?
     !------------------------------------------------------------------!
     Acrown (KI) = Acrown (KI) / flap
+    !Afoliage (KI) = Afoliage (KI) / flap
+    !Aheart (KI) = Aheart (KI) + ((PI * r (KI) ** 2) - Aheart (KI)) / flap
     !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
