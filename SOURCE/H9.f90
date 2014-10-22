@@ -181,8 +181,8 @@ WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
-WRITE (21,'(A86)') ' JYEAR NPP_ann_acc   Acrown(1)      rwidth         & 
-&LAI   Aheart(1)  ib(1)    H(1)'
+WRITE (21,*) ' JYEAR NIND_alive NPP_ann_acc  Acrown(1)  rwidth(1)      & 
+&LAI    Aheart(1) ib(1)    H(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
