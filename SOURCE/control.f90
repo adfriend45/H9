@@ -12,6 +12,7 @@ SAVE
 !----------------------------------------------------------------------!
 INTEGER :: I  ! For general local use                                (n)
 INTEGER :: J  ! For general local use                                (n)
+INTEGER :: L  ! For general local use                                (n)
 INTEGER :: NT ! GROW call loop count                                 (n)
 INTEGER :: KI ! Individual tree index                                (n)
 !----------------------------------------------------------------------!

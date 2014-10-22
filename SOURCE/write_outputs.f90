@@ -31,8 +31,8 @@ END DO INDIVIDUALS
 KI = LIVING (1)
 WRITE (21, 8002) JYEAR,NIND_alive,NPP_ann_acc,Acrown(KI),              &
                  1.0e3*rwidth(JYEAR-YEARI+1,KI),LAI,Aheart(KI),         &
-                 ib(KI),h(KI)
-8002 format (I7,I7,5F12.4,I5,F10.4)
+                 ib(KI),h(KI),r(KI)
+8002 format (I7,I7,5F12.4,I5,2F10.4)
 
 KI = LIVING (1)
 WRITE (23,8003) JYEAR,Cv(KI),Aheart(KI),FLOAT(ib(KI))* &

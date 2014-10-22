@@ -78,6 +78,7 @@ ALLOCATE (iPAR      (NIND_max))
 ALLOCATE (shade     (NIND_max))
 ALLOCATE (rwidth    (NYRS,NIND_max))
 ALLOCATE (Acrowns_layers (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
+ALLOCATE (Acrowns_layers_saved (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
 ALLOCATE (Acrowns_above  (NIND_max))
 ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
@@ -182,7 +183,7 @@ WRITE (23,*) NYRS
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
 WRITE (21,*) ' JYEAR NIND_alive NPP_ann_acc  Acrown(1)  rwidth(1)      & 
-&LAI    Aheart(1) ib(1)    H(1)'
+&LAI    Aheart(1) ib(1)    H(1)     D(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

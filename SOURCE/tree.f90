@@ -16,6 +16,7 @@ REAL   , ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
 INTEGER, ALLOCATABLE :: ih     (:)   ! Crown height           (DZ_CROWN)
 REAL   , ALLOCATABLE :: rwidth (:,:) ! Stem ring width               (m)
 REAL   , ALLOCATABLE :: Acrowns_layers (:) ! Tot crown area/layer  (m^2)
+REAL   , ALLOCATABLE :: Acrowns_layers_saved (:)
 
 REAL, ALLOCATABLE :: rold     (:) ! Saved stem radius                (m)
 REAL, ALLOCATABLE :: H        (:) ! Stem height                      (m)
