@@ -23,6 +23,7 @@ cd SOURCE
 export DRIVER=${dir}H9/EXECUTE/driver.txt
 export OUTPUT=${dir}H9/OUTPUT/output_ann.txt
 export OUTPUT2=${dir}H9/OUTPUT/output_trees.txt
+export OUTPUT3=${dir}H9/OUTPUT/diag.txt
 
 # Compile the source code, including netCDF.
 if [ $CUR_PATH == "/store/H9" ]; then # Looks like we are on Andrew's office Linux system.

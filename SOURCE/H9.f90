@@ -11,7 +11,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 9th October, 2014
+! Date last modified : 22nd October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -175,7 +175,8 @@ IF (F_OUT == 1) THEN ! Output a txt file
   CALL getenv('OUTPUT2',output)
   OPEN (22,FILE=output,STATUS='UNKNOWN')
 END IF
- OPEN (23,FILE='/store/H9/OUTPUT/diag.txt') ! TTR This is specific to your architecture and caused problems, when I compiled it.
+CALL getenv('OUTPUT3',output)
+OPEN (23,FILE=output,STATUS='UNKNOWN')
 WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
@@ -197,7 +198,7 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   JDAY = 1 + MOD (ITIME / NDAY, EDPERY)   ! Julian day            (days)
   !--------------------------------------------------------------------!
-
+  
   !--------------------------------------------------------------------!
   ! Compute current month.
   !--------------------------------------------------------------------!
@@ -243,9 +244,9 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
       KI = LIVING (I)
       !----------------------------------------------------------------!
-      ! Accumulate plot LAI across individuals                 (m^2/m^2)
+      ! Accumulate plot foliage area across individuals        (m^2/m^2)
       !----------------------------------------------------------------!
-      LAI = LAI + Afoliage (KI) / (Aplot + EPS) ! Plot LAI     (m^2/m^2)
+      LAI = LAI + Afoliage (KI)
       !----------------------------------------------------------------!
       ! Stem annual ring width                                       (m)
       !----------------------------------------------------------------!
@@ -253,8 +254,12 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
     END DO
     !------------------------------------------------------------------!
+    ! Plot LAI                                                 (m^2/m^2)
+    !------------------------------------------------------------------!
+    LAI = LAI / (Aplot + EPS)              
+    !------------------------------------------------------------------!
     CALL write_outputs
-    write (20,*) NIND_alive 
+    write (20,*) NIND_alive
     !------------------------------------------------------------------!
     ! Reset plot NPP diagnostic                             (kgC/m^2/yr)
     !------------------------------------------------------------------!
