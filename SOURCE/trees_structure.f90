@@ -43,7 +43,7 @@ END DO INDIVIDUALS_LAI_constraint
 
 !----------------------------------------------------------------------!
 ! New structure for each tree based on new Cv, giving new height,
-! potential crown area, and actual foliage area.
+! potential crown area, and potential foliage area.
 !----------------------------------------------------------------------!
 INDIVIDUALS_potential_crowns: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
@@ -125,11 +125,10 @@ INDIVIDUALS_squeeze: DO I = 1, NIND_alive
     flap = Acrowns_layers (ih (KI)) / Aplot
     !------------------------------------------------------------------!
     ! Reduce all crowns that contribute to this overlap by the fraction
-    ! of overlap in the plot. Does this work OK?
+    ! of overlap in the plot. Does this work OK? Does the order make
+    ! any difference? I feel it should go from tallest down.
     !------------------------------------------------------------------!
     Acrown (KI) = Acrown (KI) / flap
-    !Afoliage (KI) = Afoliage (KI) / flap
-    !Aheart (KI) = Aheart (KI) + ((PI * r (KI) ** 2) - Aheart (KI)) / flap
     !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
@@ -147,6 +146,7 @@ END DO INDIVIDUALS_squeeze
 
 !----------------------------------------------------------------------!
 DO I = 1, NIND_alive
+  !--------------------------------------------------------------------!
   KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Height to base of crown from foliage area                       (cm)
@@ -170,6 +170,20 @@ DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
 END DO
 !----------------------------------------------------------------------!
+
+! Carry over Aheart from previous year as that cannot fall.
+! Also have new Cv from growth.
+! From these, need to produce the size of each tree's crown and foliage
+! area. Constraint on total area that can be occupied and that each
+! crown must occupy a unique volume and that each LAI is limited by the
+! light extinction.
+! Need it to all fall out as a consistent set of volumes and areas.
+! Order:
+!  (i)   New Cv, which gives H, r.
+!  (ii)  Each tree has a potential foliage area and crown area.
+!  (iii) Then constrain these using plot area and iPAR.
+!  (iv)  First do volume constraint, then calculate iPAR and do
+!        LAI constraint, then increase heartwood areas if necessary.
 
 !----------------------------------------------------------------------!
 END SUBROUTINE trees_structure
