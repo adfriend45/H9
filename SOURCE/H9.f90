@@ -11,7 +11,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 22nd October, 2014
+! Date last modified : 23rd October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -26,8 +26,10 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 CHARACTER (LEN = 100) :: driver         ! Filename for driver file.
 CHARACTER (LEN = 100) :: output         ! Filename for output file.
-INTEGER :: size
-INTEGER, ALLOCATABLE :: seed (:)
+!INTEGER :: size
+!INTEGER, ALLOCATABLE :: seed (:)
+INTEGER, DIMENSION (1) :: seed = (/3/)
+REAL :: Asapwood
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -78,7 +80,6 @@ ALLOCATE (iPAR      (NIND_max))
 ALLOCATE (shade     (NIND_max))
 ALLOCATE (rwidth    (NYRS,NIND_max))
 ALLOCATE (Acrowns_layers (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
-ALLOCATE (Acrowns_layers_saved (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
 ALLOCATE (Acrowns_above  (NIND_max))
 ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
@@ -110,10 +111,9 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 ! Initialise state variables.
 !----------------------------------------------------------------------!
-CALL RANDOM_SEED (size=size)
-ALLOCATE (seed(size))
+!CALL RANDOM_SEED (size=size)
+!ALLOCATE (seed(size))
 CALL RANDOM_SEED (put=seed)
-!CALL RANDOM_SEED
 NIND_alive = 0
 DO I = 1, NIND_max
   KI = I
@@ -182,8 +182,8 @@ WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
-WRITE (21,*) ' JYEAR NIND_alive NPP_ann_acc  Acrown(1)  rwidth(1)      & 
-&LAI    Aheart(1) ib(1)    H(1)     D(1)'
+WRITE (21,'(A100)') ' JYEAR NIND_alive NPP_ann_acc  Acrown(1)  rwidth(1&
+&)       LAI      Aheart(1) ib(1)    H(1)     D(1)'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -295,6 +295,27 @@ CLOSE (20)
 CLOSE (21) ! Close the annual output file
 IF (F_OUT == 1) CLOSE (22) ! Close the individual tree output file.
 CLOSE (23)
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
+! Diagnostic of canopy profile.
+!----------------------------------------------------------------------!
+Acrowns_layers (:) = 0.0
+!----------------------------------------------------------------------!
+INDIVIDUALS_layers: DO I = 1, NIND_alive
+  !--------------------------------------------------------------------!
+  KI = LIVING (I)
+  !--------------------------------------------------------------------!
+  ! ib index starts at 0, so assume ib+1 is lowest layer.
+  !--------------------------------------------------------------------!
+  Acrowns_layers (ib(KI)+1:ih(KI)) = Acrowns_layers (ib(KI)+1:ih(KI))  &
+  &                                  + Acrown (KI)
+  !--------------------------------------------------------------------!
+END DO INDIVIDUALS_layers
+!----------------------------------------------------------------------!
+DO L = 1, 110000/DZ_CROWN
+  WRITE (99,*) L,Acrowns_layers(L)
+END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

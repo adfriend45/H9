@@ -15,6 +15,14 @@ INTEGER :: KJ
 REAL :: LAI_above,space,frac
 !----------------------------------------------------------------------!
 
+! Now allowing crown overlap within crowns, maybe better to calculate
+! fPAR of whole plot and then divide this into trees, somehow.
+! By all layers?
+! For LAI:
+! Instead of iPAR, use the PAR irradiance at the bottom of the crown
+! in the absence of that individual to see how much more foliage
+! could be added?
+
 !----------------------------------------------------------------------!
 ! Go through individuals to calculate fPAR.
 !----------------------------------------------------------------------!
