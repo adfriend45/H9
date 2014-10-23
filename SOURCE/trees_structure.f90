@@ -36,6 +36,11 @@ INDIVIDUALS_LAI_constraint: DO I = 1, NIND_alive
     !------------------------------------------------------------------!
     Aheart (KI) = Aheart (KI) + floss * Afoliage (KI) / FASA
     !------------------------------------------------------------------!
+    ! Reduce crown depth by appropriate fraction                     (m)
+    !------------------------------------------------------------------!
+    ib (KI) = ib (KI) + CEILING (floss * (H (KI) - FLOAT (ib (KI))))
+    ib (KI) = MIN (ih(KI),ib(KI))
+    !------------------------------------------------------------------!
   END IF
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS_LAI_constraint
@@ -151,18 +156,18 @@ DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Height to base of crown from foliage area                       (cm)
   !--------------------------------------------------------------------!
-  ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI) * &
-  &         DZ_CROWN_M))
+  !ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI) * &
+  !&         DZ_CROWN_M))
   !--------------------------------------------------------------------!
   ! Reduce foliage area and increase heartwood area if insufficient
   ! canopy volume for sapwood-area controlled foliage area.
   !--------------------------------------------------------------------!
-  IF (ib (KI) < 0) THEN
-    ib (KI) = 0
-    Afoliage (KI) = SIGAF * Acrown (KI) * FLOAT (ih (KI)) * DZ_CROWN_M
-    Aheart (KI) = PI * r (KI) ** 2 - Afoliage (KI) / FASA
-    Aheart (KI) = MAX (0.0,Aheart(KI))
-  ENDIF
+  !IF (ib (KI) < 0) THEN
+  !  ib (KI) = 0
+  !  Afoliage (KI) = SIGAF * Acrown (KI) * FLOAT (ih (KI)) * DZ_CROWN_M
+  !  Aheart (KI) = PI * r (KI) ** 2 - Afoliage (KI) / FASA
+  !  Aheart (KI) = MAX (0.0,Aheart(KI))
+  !ENDIF
   !--------------------------------------------------------------------!
   ! Tree crown LAI                                             (m^2/m^2)
   !--------------------------------------------------------------------!
@@ -184,6 +189,18 @@ END DO
 !  (iii) Then constrain these using plot area and iPAR.
 !  (iv)  First do volume constraint, then calculate iPAR and do
 !        LAI constraint, then increase heartwood areas if necessary.
+!
+! In a natural system, will grow in height, to fill gaps, and lose
+! lower leaves gradually. Presumably the leaf bit could be annual.
+! Height and gap filling are slow as well, so could be annual. At
+! all time there is a constant leaf area density, so ib controls
+! LAI. In fact, given iPAR, H then determines ib from density, so
+! can easily set that up-front! ib should not be responding to
+! changes in Acrown. But, this may make it harder to implement more
+! physiological approaches later on - do not worry for now as need
+! something efficient and accurate for now.
+
+
 
 !----------------------------------------------------------------------!
 END SUBROUTINE trees_structure
