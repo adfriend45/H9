@@ -28,6 +28,7 @@ CHARACTER (LEN = 100) :: driver         ! Filename for driver file.
 CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
+INTEGER :: n
 INTEGER, DIMENSION (1) :: seed = (/3/)
 REAL :: Asapwood
 !----------------------------------------------------------------------!
@@ -64,6 +65,7 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
+N_LAYERS = 110000 / DZ_CROWN ! Assumes ih <= 110 m.
 ALLOCATE (LIVING    (NIND_max))
 ALLOCATE (Cv        (NIND_max))
 ALLOCATE (Aheart    (NIND_max))
@@ -79,7 +81,7 @@ ALLOCATE (r         (NIND_max))
 ALLOCATE (iPAR      (NIND_max))
 ALLOCATE (shade     (NIND_max))
 ALLOCATE (rwidth    (NYRS,NIND_max))
-ALLOCATE (Acrowns_layers (110000/DZ_CROWN)) ! Assumes ih <= 110 m.
+ALLOCATE (Acrowns_layers (N_LAYERS)) ! Assumes ih <= 110 m.
 ALLOCATE (Acrowns_above  (NIND_max))
 ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
@@ -113,7 +115,7 @@ ITIMEE = ITE1                ! End of model run                    (ITU)
 !----------------------------------------------------------------------!
 !CALL RANDOM_SEED (size=size)
 !ALLOCATE (seed(size))
-CALL RANDOM_SEED (put=seed)
+CALL RANDOM_SEED (size=n)
 NIND_alive = 0
 DO I = 1, NIND_max
   KI = I
@@ -314,7 +316,7 @@ INDIVIDUALS_layers: DO I = 1, NIND_alive
 END DO INDIVIDUALS_layers
 !----------------------------------------------------------------------!
 DO L = 1, 110000/DZ_CROWN
-  WRITE (99,*) L,Acrowns_layers(L)
+  WRITE (99,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L)
 END DO
 !----------------------------------------------------------------------!
 

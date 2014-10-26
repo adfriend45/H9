@@ -41,6 +41,7 @@ REAL    :: DTTR   ! Tree growth time step                            (s)
 INTEGER :: ITE1   ! Length of model run                              (s)
 INTEGER :: ITIMEI ! Start of model run                (internal time, s)
 INTEGER :: ITIMEE ! End of model run                  (internal time, s)
+INTEGER :: N_LAYERS ! No. horizontal layers in plot                  (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
