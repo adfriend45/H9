@@ -1,6 +1,6 @@
 3600.0 ; DTSRC    ; Source time step (= 1 ITU: Internal Time Units)           (s)
      2 ; NITR     ; No. tree biology time steps per ITU                       (n)
-  2000 ; NYRS     ; No. years to simulate                                     (y)
+   200 ; NYRS     ; No. years to simulate                                     (y)
   1800 ; YEARI    ; Start of model run                        (calendar year, yr)
      1 ; MONI     ; Start of model run                             (Julian month)
      0 ; IHRI     ; Start of model run                          (24-hr clock, hr)

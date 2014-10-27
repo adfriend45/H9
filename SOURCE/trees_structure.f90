@@ -30,6 +30,7 @@ DO I = 1, NIND_alive
   r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
   D = 2.0 * r (KI)
   Acrown (KI) = PI * (Dcrown / 2.0) ** 2
+  Acrown (KI) = MIN (Acrown(KI),Aplot)
   Acrowns_layers (ib(KI)+1:ih(KI)) = Acrowns_layers (ib(KI)+1:ih(KI))  &
   &                                  + Acrown (KI)
 END DO
@@ -39,10 +40,10 @@ END DO
 ! squeezing. After each squeezing, need to adjust crown area profile.
 top    = MAXVAL (ih(LIVING(1:NIND_alive)))
 bottom = MINVAL (ih(LIVING(1:NIND_alive)))
-write (*,*) top,bottom
+write (*,*) NIND_alive,'bottom top',bottom,top
 write (98,*) top,bottom
-DO L = top-1, bottom, -1
-  !write (98,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L),Acrowns_layers(L+1)
+DO L = top, bottom, -1
+  write (98,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L),Acrowns_layers(L+1)
   IF (Acrowns_layers (L) > Aplot) THEN
     flap = (Acrowns_layers (L) - Aplot) / (Acrowns_layers (L) - &
     &       Acrowns_layers (L+1) + EPS)
@@ -145,12 +146,20 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI) * &
   &         DZ_CROWN_M))
-  write (98,*) KI,Acrown(KI),Afoliage(KI),ib(KI),ih(KI)
   !--------------------------------------------------------------------!
   ! Keep height to base of crown within sensible bounds     (DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  ib (KI) = MIN (ih(KI),ib(KI))
-  ib (KI) = MAX (0,ib(KI))
+  IF (ib (KI) > ih (KI)) THEN
+    ib (KI) = ih (KI)
+    Afoliage (KI) = 0.0
+    Acrown (KI) = 0.0
+  END IF
+  IF (ib (KI) < 0) THEN
+    ib (KI) = 0
+    Afoliage (KI) = SIGAF * FLOAT (ih (KI) - ib (KI)) * DZ_CROWN_M *   &
+    &               Acrown (KI)
+  END iF
+  write (98,*) KI,Acrown(KI),Afoliage(KI),ib(KI),ih(KI)
   !--------------------------------------------------------------------!
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
