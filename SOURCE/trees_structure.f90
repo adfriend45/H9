@@ -42,13 +42,13 @@ bottom = MINVAL (ih(LIVING(1:NIND_alive)))
 write (*,*) top,bottom
 write (98,*) top,bottom
 DO L = top-1, bottom, -1
-  write (98,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L),Acrowns_layers(L+1)
+  !write (98,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L),Acrowns_layers(L+1)
   IF (Acrowns_layers (L) > Aplot) THEN
     flap = (Acrowns_layers (L) - Aplot) / (Acrowns_layers (L) - &
     &       Acrowns_layers (L+1) + EPS)
     flap = MIN (1.0,flap)
     flap = MAX (0.0,flap)
-    write (98,*) 'flap=',flap
+    !write (98,*) 'flap=',flap
     !flap = 0.0
     DO I = 1, NIND_alive
       KI = LIVING (I)
@@ -56,14 +56,14 @@ DO L = top-1, bottom, -1
       ! If it does not, then may be bias depending on which one is
       ! reduced first. Can fix...
       IF (ih (KI) == L) THEN
-        write (98,*) KI,Acrown(KI)
+        !write (98,*) KI,Acrown(KI)
         lose = flap * Acrown (KI)
         Acrown (KI) = Acrown (KI) - lose
         Acrowns_layers (ib(KI)+1:ih(KI)) = &
         &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
       END IF
     END DO
-  write (98,*) '1',L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L)
+  !write (98,*) '1',L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L)
   END IF
 END DO
 
@@ -145,6 +145,7 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI) * &
   &         DZ_CROWN_M))
+  write (98,*) KI,Acrown(KI),Afoliage(KI),ib(KI),ih(KI)
   !--------------------------------------------------------------------!
   ! Keep height to base of crown within sensible bounds     (DZ_CROWN_M)
   !--------------------------------------------------------------------!
