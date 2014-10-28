@@ -8,3 +8,4 @@
   2000 ; NIND_max ; No. trees to simulate                                     (n)
      0 ; F_OUT    ; Individual tree diagonstics output flag (0=none; 1=txt; 2=nc)
      1 ; DZ_CROWN ; Crown depth division                                     (mm)
+   120 ; H_MAX    ; Maximum possible tree height                              (m)

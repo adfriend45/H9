@@ -49,3 +49,11 @@ Next work on the squeezing algorithm. I do not see how it works at moment.
 Friday 17th October, 2014
 -------------------------
 OK, working as before with single tree. Now need to work up squeeze in trees_structure.f90.
+
+Tuesday 28th October, 2014
+--------------------------
+Found some really good notes on Fortran90, makefiles, modules, etc.:
+http://www.ucs.cam.ac.uk/docs/course-notes/unix-courses/Fortran/files/paper_08.pdf
+Would like to start to assess effects of assumptions, so need to create system
+where can do this easily. First, look at effect of adding constraint on rate of
+branch extension, say 10 cm/yr. Could squeezing also have a maximum rate constant?

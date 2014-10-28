@@ -29,8 +29,9 @@ INTEGER :: MONI       ! Start of model run                (Julian month)
 INTEGER :: IHRI       ! Start of model run              (24-hr clock hr)
 INTEGER :: NMONAV     ! No. months in a diagnostic acc period   (months)
 INTEGER :: NIND_max   ! Max. no. trees to simulate                   (n)
-INTEGER :: DZ_CROWN   ! Crown depth division                        (mm)
 INTEGER :: F_OUT      ! Output flag for individuals  (0 = none; 1 = txt)
+INTEGER :: DZ_CROWN   ! Crown depth division                        (mm)
+INTEGER :: H_MAX      ! Maximum possible tree height                 (m)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

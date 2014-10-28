@@ -5,20 +5,21 @@ PROGRAM H9
 ! dynamics on the response of natural forest to increasing atmospheric
 ! CO2.
 !
-! Put source code in /SOURCE
+! Put source code and makefile in /SOURCE
 ! Put run control file, 'driver.txt', in /EXECUTE
+! Create /OUTPUT
 ! Use './q' to compile and run the SOURCE code.
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 23rd October, 2014
+! Date last modified : 27th October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 USE CONSTANTS
 USE CONTROL
 USE TREE
-!USE NETCDF
+USE NETCDF
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -31,6 +32,7 @@ CHARACTER (LEN = 100) :: output         ! Filename for output file.
 INTEGER :: n
 INTEGER, DIMENSION (1) :: seed = (/3/)
 REAL :: Asapwood
+INTEGER :: tall,short
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -52,6 +54,7 @@ READ (10,*) NMONAV   ! No. months in a diagnostic acc period    (months)
 READ (10,*) NIND_max ! Max No. trees to simulate                     (n)
 READ (10,*) F_OUT    ! Flag for individual output file   (0=none; 1=txt)
 READ (10,*) DZ_CROWN ! Crown depth division                         (mm)
+READ (10,*) H_MAX    ! Maximum possible tree height                  (m)
 
 !----------------------------------------------------------------------!
 ! Crown depth division                                               (m)
@@ -65,7 +68,7 @@ WRITE (20,'(A8,I10  ,A3)') 'NYRS  = ',NYRS ,'  y'
 WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 
 !----------------------------------------------------------------------!
-N_LAYERS = 110000 / DZ_CROWN ! Assumes ih <= 110 m.
+N_LAYERS = (1000 * H_MAX) / DZ_CROWN
 ALLOCATE (LIVING    (NIND_max))
 ALLOCATE (Cv        (NIND_max))
 ALLOCATE (Aheart    (NIND_max))
@@ -81,7 +84,7 @@ ALLOCATE (r         (NIND_max))
 ALLOCATE (iPAR      (NIND_max))
 ALLOCATE (shade     (NIND_max))
 ALLOCATE (rwidth    (NYRS,NIND_max))
-ALLOCATE (Acrowns_layers (N_LAYERS)) ! Assumes ih <= 110 m.
+ALLOCATE (Acrowns_layers (N_LAYERS))
 ALLOCATE (Acrowns_above  (NIND_max))
 ALLOCATE (Afoliage_above (NIND_max))
 !----------------------------------------------------------------------!
@@ -124,7 +127,8 @@ DO I = 1, NIND_max
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  D = RANDOM * 0.01 + 0.001  ! Stem diameter                         (m)
+  !D = RANDOM * 0.01 + 0.001  ! Stem diameter                         (m)
+  D = RANDOM * 0.001 + 0.0001  ! Stem diameter                       (m)
   r (KI) = D / 2.0           ! Stem radius                           (m)
   rold (KI) = r (KI)         ! Saved stem radius                     (m)
   H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
@@ -300,7 +304,7 @@ CLOSE (23)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Diagnostic of canopy profile.
+! Diagnostic of final canopy profile.
 !----------------------------------------------------------------------!
 Acrowns_layers (:) = 0.0
 !----------------------------------------------------------------------!
@@ -315,7 +319,12 @@ INDIVIDUALS_layers: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS_layers
 !----------------------------------------------------------------------!
-DO L = 1, 110000/DZ_CROWN
+! Heights where crowns are in plot (DZ_CROWN).
+!----------------------------------------------------------------------!
+tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
+short = MINVAL (ib(LIVING(1:NIND_alive)))
+!----------------------------------------------------------------------!
+DO L = tall, short, -1
   WRITE (99,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L)
 END DO
 !----------------------------------------------------------------------!

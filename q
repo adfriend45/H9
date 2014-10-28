@@ -17,7 +17,7 @@ elif [ $CUR_PATH == "/Users/Waldlaeufer/projects/H9" ]; then # Tim will need to 
 fi
 
 # Change to source code directory.
-cd SOURCE
+cd ./SOURCE
 
 # Export environmental drivers for driver and output files.
 export DRIVER=${dir}H9/EXECUTE/driver.txt
