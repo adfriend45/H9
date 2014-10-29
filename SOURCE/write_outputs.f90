@@ -17,7 +17,7 @@ IMPLICIT NONE
 !---------------------------------------------------------------------!
 
 IF (F_OUT == 1) WRITE (22,8000) JYEAR,NIND_alive,NYRS,NIND_max,Aplot
-8000 format (i5, i10, i5, i10, f8.1)
+8000 FORMAT (I5,I10,I5,I10,F8.1)
 
 INDIVIDUALS: DO I = 1, NIND_alive
   KI = LIVING (I)
@@ -28,7 +28,7 @@ INDIVIDUALS: DO I = 1, NIND_alive
 !  WRITE (*, 8001)  JYEAR-YEARI+1, KI, ib (KI), ih (KI),              &
 !                   LAIcrown (KI), r (KI), Acrown (KI), shade (KI)
 END DO INDIVIDUALS
-8001 format (4i5, 4f15.7)
+8001 FORMAT (4I5,4F15.7)
 
 WRITE (21, 8002) JYEAR, NPP_ann_acc, Acrown (1),                     &
                  1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),   &
@@ -36,19 +36,19 @@ WRITE (21, 8002) JYEAR, NPP_ann_acc, Acrown (1),                     &
 !WRITE (*, 8002) JYEAR, NPP_ann_acc, Acrown (1),                      &
 !                1.0e3*rwidth (JYEAR-YEARI+1, 1), LAI, Aheart (1),    &
 !                ib (1), h (1)
-8002 format (i7, 5f12.4, i7, f12.4)
+8002 FORMAT (I7,5F12.4,I7,F12.4)
 
 KI = LIVING (1)
-WRITE (23,8003) JYEAR,Cv(KI),Aheart(KI),FLOAT(ib(KI))* &
-&            DZ_CROWN_M,FLOAT(ih(KI))* &
-&            DZ_CROWN_M,Acrown(KI), &
-&            Afoliage(KI), &
-&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI))* &
-&            DZ_CROWN_M), &
-&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI)-ib(KI))* &
-&            DZ_CROWN_M),&
-&            1.0e4*rwidth(JYEAR-YEARI+1,KI),LAI,NIND_alive
-8003 FORMAT (I5,10F12.4,I10)
+!WRITE (23,8003) JYEAR,Cv(KI),Aheart(KI),FLOAT(ib(KI))* &
+!&            DZ_CROWN_M,FLOAT(ih(KI))* &
+!&            DZ_CROWN_M,Acrown(KI), &
+!&            Afoliage(KI), &
+!&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI))* &
+!&            DZ_CROWN_M), &
+!&            Afoliage(KI)/(Acrown(KI)*FLOAT(ih(KI)-ib(KI))* &
+!&            DZ_CROWN_M),&
+!&            1.0e4*rwidth(JYEAR-YEARI+1,KI),LAI,NIND_alive
+!8003 FORMAT (I5,10F12.4,I10)
 
 !---------------------------------------------------------------------!
 END SUBROUTINE write_outputs

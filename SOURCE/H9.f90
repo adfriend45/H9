@@ -175,8 +175,8 @@ IF (F_OUT == 1) THEN ! Output a txt file
   CALL getenv('OUTPUT2',output)
   OPEN (22,FILE=output,STATUS='UNKNOWN')
 END IF
- OPEN (23,FILE='/store/H9/OUTPUT/diag.txt') ! TTR This is specific to your architecture and caused problems, when I compiled it.
-WRITE (23,*) NYRS
+ !OPEN (23,FILE='/store/H9/OUTPUT/diag.txt') ! TTR This is specific to your architecture and caused problems, when I compiled it.
+!WRITE (23,*) NYRS
 !----------------------------------------------------------------------!
 WRITE (21,*) '8'            ! No. data columns in output_ann.txt
 WRITE (21,*) NYRS           ! No. data lines   in output_ann.txt
@@ -288,7 +288,7 @@ CLOSE (20)
 !----------------------------------------------------------------------!
 CLOSE (21) ! Close the annual output file
 IF (F_OUT == 1) CLOSE (22) ! Close the individual tree output file
-CLOSE (23)
+!CLOSE (23)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

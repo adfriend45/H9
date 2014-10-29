@@ -10,7 +10,7 @@ USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 !----------------------------------------------------------------------!
-INTEGER :: base ! PAR-limited height to base of crown               (cm)
+!INTEGER :: base ! PAR-limited height to base of crown               (cm) !TTR This is not used anymore currently
 REAL    :: flap,LAIc
 !----------------------------------------------------------------------!
 
