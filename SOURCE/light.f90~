@@ -1,7 +1,10 @@
 !======================================================================!
 SUBROUTINE light
 !----------------------------------------------------------------------!
-! Compute fractional absorbed light of each tree.
+! Compute fractional absorbed light incident and absorbed by each tree
+! crown (i.e. iPAR and fPAR). fPAR is the fraction of total PAR
+! incident on the plot that is absorbed by the individual. Hence:
+! PAR absorbed by individual = fPAR * PAR incident on plot.
 !----------------------------------------------------------------------!
 USE CONSTANTS
 USE CONTROL
@@ -9,78 +12,70 @@ USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 INTEGER :: KJ
-REAL :: shade,LAI_above,space,LAIc
+REAL :: LAI_above,space,frac
 !----------------------------------------------------------------------!
 
-!----------------------------------------------------------------------!
-! Put crown and leaf areas of each tree in each layer.
-!----------------------------------------------------------------------!
-Acrown_layer   (:,:) = 0.0
-Afoliage_layer (:,:) = 0.0
-!----------------------------------------------------------------------!
-INDIVIDUALS_areas: DO KI = 1, NIND
-  !--------------------------------------------------------------------!
-  ! Tree height (cm).
-  !--------------------------------------------------------------------!
-  ih (KI) = CEILING (100.0 * H (KI))
-  !--------------------------------------------------------------------!
-  Acrown_layer   (ib(KI)+1:ih(KI),KI) = Acrown   (KI)
-  Afoliage_layer (ib(KI)+1:ih(KI),KI) = Afoliage (KI)
-  !--------------------------------------------------------------------!
-END DO INDIVIDUALS_Areas ! KI = 1, NIND
-!----------------------------------------------------------------------!
+! Now allowing crown overlap within crowns, maybe better to calculate
+! fPAR of whole plot and then divide this into trees, somehow.
+! By all layers?
+! Instead of iPAR, use the PAR irradiance at the bottom of the crown
+! in the absence of that individual to see how much more foliage
+! could be added?
 
 !----------------------------------------------------------------------!
 ! Go through individuals to calculate fPAR.
 !----------------------------------------------------------------------!
-Acrowns_above (:) = 0.0
+Acrowns_above  (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
-INDIVIDUALS_areas_above: DO KI = 1, NIND
-  INDIVIDUALS_above: DO KJ = 1, NIND
+INDIVIDUALS_areas_above: DO I = 1, NIND_alive
+  KI = LIVING (I)
+  INDIVIDUALS_above: DO J = 1, NIND_alive
+    KJ = LIVING (J)
     DIFFERENT: IF (KJ .NE. KI) THEN
-      TALLER: IF (ih (KJ) > ih(KI)) THEN
+      ! Float h(KI) to increase accuracy?
+      TALLER: IF (ih (KJ) > ih (KI)) THEN
         Acrowns_above  (KI) = Acrowns_above  (KI) + Acrown   (KJ)
-        Afoliage_above (KI) = Afoliage_above (KI) + Afoliage (KJ)
+        IF (ib (KJ) < ih (KI)) THEN ! Overlap.
+          frac = (FLOAT (ih (KJ)) - FLOAT (ih (KI))) / &
+          &      (FLOAT (ih (KJ)) - FLOAT (ib (KJ)))
+        ELSE ! No overlap.
+          frac = 1.0
+        END IF
+        frac = 1.0
+        Afoliage_above (KI) = Afoliage_above (KI) + frac * Afoliage (KJ)
+        !Afoliage_above (KI) = Afoliage_above (KI) + Afoliage (KJ)
       END IF TALLER
     END IF DIFFERENT
   END DO INDIVIDUALS_above
   !--------------------------------------------------------------------!
   ! Open horizontal area above available for individual KI.
   !--------------------------------------------------------------------!
-  space = MAX (0.0,Aplot-Acrowns_above(KI))
+  space = MAX (0.0, Aplot - Acrowns_above (KI))
   !--------------------------------------------------------------------!
   ! Fraction of crown shaded (fraction).
   !--------------------------------------------------------------------!
   SHADE_fraction: IF (Acrown (KI) <= space) THEN
-    shade = 0.0
+    ! Crown fits in gap, so assume KI not shaded at all.
+    shade (KI) = 0.0
   ELSE
-    shade = (Acrown (KI) - space) / Acrown (KI)
+    ! At least some taller trees overlap KI.
+    shade (KI) = (Acrown (KI) - space) / Acrown (KI)
   END IF SHADE_fraction
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above tree                            (m^2/m^2)
   !--------------------------------------------------------------------!
-  LAI_above = Afoliage_above (KI) / (Acrowns_above (KI) + EPS)
+  LAI_above = Afoliage_above (KI) / Aplot
   !--------------------------------------------------------------------!
   ! Mean iPAR at top of tree                                  (fraction)
   !--------------------------------------------------------------------!
-  iPAR (KI) = (1.0 - shade) + shade * EXP (-0.5 * LAI_above)
+  iPAR (KI) = (1.0 - shade (KI)) + shade (KI) * EXP (-0.5 * LAI_above)
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
   fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
-  !write (*,*) KI,iPAR(KI),fPAR(KI),shade,LAIcrown(KI),H(KI)
-END DO INDIVIDUALS_areas_above ! KI = 1, NIND
-
-! Fraction of foliage area below compensation point.
-DO KI = 1, NIND
-  LAIc = LOG (0.03 / (iPAR (KI) + EPS)) / (-0.5)
-  floss (KI) = 1.0 - LAIc / LAIcrown (KI)
-  floss (KI) = MAX (floss (KI), 0.0)
-  floss (KI) = MIN (floss (KI), 1.0)
-  write (*,'(i3,5f10.2)') KI,LAIcrown(KI),floss(KI),H(KI),Acrown(KI),Acrowns_above(KI)
-END DO
+END DO INDIVIDUALS_areas_above ! I = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light

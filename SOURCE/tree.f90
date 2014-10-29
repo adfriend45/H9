@@ -1,6 +1,8 @@
 !======================================================================!
 MODULE TREE
 !----------------------------------------------------------------------!
+! Contains tree variables.
+!----------------------------------------------------------------------!
 IMPLICIT NONE
 SAVE
 !----------------------------------------------------------------------!
@@ -15,8 +17,9 @@ REAL   , ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
 !----------------------------------------------------------------------!
 INTEGER, ALLOCATABLE :: ih     (:)   ! Crown height           (DZ_CROWN)
 REAL   , ALLOCATABLE :: rwidth (:,:) ! Stem ring width               (m)
-REAL   , ALLOCATABLE :: Acrowns_layers (:) ! Tot crown area/layer  (m^2)
+REAL   , ALLOCATABLE :: Acrowns_layers (:) ! Sum crown area/layer  (m^2)
 
+REAL   , ALLOCATABLE :: Acrowns_layers_saved (:)
 REAL, ALLOCATABLE :: rold     (:) ! Saved stem radius                (m)
 REAL, ALLOCATABLE :: H        (:) ! Stem height                      (m)
 REAL, ALLOCATABLE :: Afoliage (:) ! Foliage area                   (m^2)
@@ -40,7 +43,6 @@ REAL :: Clit     ! Tree structural carbon litter flux       (kgC/tree/s)
 REAL :: tau      ! Tree structural carbon residence time            (yr)
 REAL :: V        ! Stem volume                                     (m^3)
 REAL :: Dcrown   ! Crown diameter                                    (m)
-REAL :: Asapwood ! Sapwood area                                    (m^2)
 REAL :: LAI      ! Plot leaf area index                        (m^2/m^2)
 REAL :: NPP_ann_acc ! Accumulated annual NPP                (kgC/m^2/yr)
 REAL :: floss

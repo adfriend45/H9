@@ -30,7 +30,7 @@ Wednesday 8th October, 2014
 Adding array of living tree indices so do not need to shift all variables each time one dies, and to use for diagnostics (Tim's graphics).
 Before change, LAI = 7.1, H = 57.24.
 
-Thursday 9th November, 2014
+Thursday 9th October, 2014
 ---------------------------
 Working carefully through code as does not give the same result when change things like write statements. Need to check if fPAR sums to correct total and work out general light profile stuff as a priority.
 
@@ -45,3 +45,15 @@ Moved Acrown calculation above ib calculation, and now does not go negative.
 But, Acrown limited later by plot area, so how deal with ib then? A bit complicated as all trees are reduced if they in total are more than plot area. So, recalculate after final Acrown is known, and adjust foliage areas and Aheart if not enough depth available.
 A sensible approach seems to be to use the foliage area density as the ultimate constraint. Height fixed from D, and potential crown diameter fixed from D, giving potential crown volume. This is filled if sapwood area is enough, otherwise crown volume is reduced to keep foliage area density constant.
 Next work on the squeezing algorithm. I do not see how it works at moment.
+
+Friday 17th October, 2014
+-------------------------
+OK, working as before with single tree. Now need to work up squeeze in trees_structure.f90.
+
+Tuesday 28th October, 2014
+--------------------------
+Found some really good notes on Fortran90, makefiles, modules, etc.:
+http://www.ucs.cam.ac.uk/docs/course-notes/unix-courses/Fortran/files/paper_08.pdf
+Would like to start to assess effects of assumptions, so need to create system
+where can do this easily. First, look at effect of adding constraint on rate of
+branch extension, say 10 cm/yr. Could squeezing also have a maximum rate constant?

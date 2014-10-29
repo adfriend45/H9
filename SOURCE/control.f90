@@ -12,6 +12,7 @@ SAVE
 !----------------------------------------------------------------------!
 INTEGER :: I  ! For general local use                                (n)
 INTEGER :: J  ! For general local use                                (n)
+INTEGER :: L  ! For general local use                                (n)
 INTEGER :: NT ! GROW call loop count                                 (n)
 INTEGER :: KI ! Individual tree index                                (n)
 !----------------------------------------------------------------------!
@@ -28,8 +29,9 @@ INTEGER :: MONI       ! Start of model run                (Julian month)
 INTEGER :: IHRI       ! Start of model run              (24-hr clock hr)
 INTEGER :: NMONAV     ! No. months in a diagnostic acc period   (months)
 INTEGER :: NIND_max   ! Max. no. trees to simulate                   (n)
-INTEGER :: DZ_CROWN   ! Crown depth division                        (mm)
 INTEGER :: F_OUT      ! Output flag for individuals  (0 = none; 1 = txt)
+INTEGER :: DZ_CROWN   ! Crown depth division                        (mm)
+INTEGER :: H_MAX      ! Maximum possible tree height                 (m)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -40,6 +42,7 @@ REAL    :: DTTR   ! Tree growth time step                            (s)
 INTEGER :: ITE1   ! Length of model run                              (s)
 INTEGER :: ITIMEI ! Start of model run                (internal time, s)
 INTEGER :: ITIMEE ! End of model run                  (internal time, s)
+INTEGER :: N_LAYERS ! No. horizontal layers in plot                  (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
