@@ -45,6 +45,14 @@ DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
   !--------------------------------------------------------------------!
+  ! Stem length above ground (i.e. height)                           (m)
+  !--------------------------------------------------------------------!
+  H (KI) = alpha * r (KI) ** beta
+  !--------------------------------------------------------------------!
+  ! Height in canopy depth units                            (DZ_CROWN_M)
+  !--------------------------------------------------------------------!
+  ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
+  !--------------------------------------------------------------------!
   ! Stem diameter                                                    (m)
   !--------------------------------------------------------------------!
   D = 2.0 * r (KI)
@@ -79,7 +87,6 @@ tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
 short = MINVAL (ih(LIVING(1:NIND_alive)))
 !----------------------------------------------------------------------!
 
-
 !----------------------------------------------------------------------!
 ! Loop down through plot.
 !----------------------------------------------------------------------!
@@ -87,63 +94,65 @@ DO L = tall, short, -1
   !--------------------------------------------------------------------!
   ! Test if sum of crown layers at this level is too large for plot.
   !--------------------------------------------------------------------!
-  IF (Acrowns_layers (L) > Aplot) THEN
+  over_area : IF (Acrowns_layers (L) > Aplot) THEN
     !------------------------------------------------------------------!
     ! Total crown area is too large at this level. flap is the ratio
     ! of excess crown area to additional crown area added when going
     ! from layer above to this one. Excess must be due to the addition
     ! of one or more trees as their heights extend to this level.
     !------------------------------------------------------------------!
-    flap = (Acrowns_layers (L) - Aplot) / (Acrowns_layers (L) - &
-    &       Acrowns_layers (L+1) + EPS)
+    IF ((Acrowns_layers (L) - Acrowns_layers (L+1)) > EPS) THEN
+      flap = (Acrowns_layers (L) - Aplot) / (Acrowns_layers (L) - &
+      &       Acrowns_layers (L+1))
+    ELSE
+      flap = 0.0
+    ENDIF
     !------------------------------------------------------------------!
-    ! Because strange things can happen at low numbers, limit flap.
+    ! Because strange things can happen with ratios at low differences,
+    ! limit flap.
     !------------------------------------------------------------------!
-    if (flap > 1.0) write (*,*) JYEAR,L,flap
     flap = MIN (1.0,flap)
     flap = MAX (0.0,flap)
     !------------------------------------------------------------------!
     DO I = 1, NIND_alive
+      !----------------------------------------------------------------!
+      ! Index of living individual                                   (n)
+      !----------------------------------------------------------------!
       KI = LIVING (I)
+      !----------------------------------------------------------------!
       ! I think this works as long as each tree has a unique ih.
       ! If it does not, then may be bias depending on which one is
       ! reduced first. Can fix...
-      IF ((ih (KI) == L) .AND. (flap > 0.0)) THEN
-        !-------------------------------------------------------------!
-        ! Crown area to lose from this individual (m^2)
-        !-------------------------------------------------------------!
+      !----------------------------------------------------------------!
+      tree_top : IF ((ih (KI) == L) .AND. (flap > 0.0)) THEN
+        !--------------------------------------------------------------!
+        ! Crown area to lose from this individual                 (m^2)
+        !--------------------------------------------------------------!
         lose = flap * Acrown (KI)
-        !-------------------------------------------------------------!
+        !--------------------------------------------------------------!
         ! Remove this crown area                                  (m^2)
-        !-------------------------------------------------------------!
+        !--------------------------------------------------------------!
         Acrown (KI) = Acrown (KI) - lose
-        !-------------------------------------------------------------!
-        ! Adjust canopy profile.
-        !-------------------------------------------------------------!
+        !--------------------------------------------------------------!
+        ! Adjust canopy profile due to change in crown area.
+        !--------------------------------------------------------------!
         Acrowns_layers (ib(KI)+1:ih(KI)) = &
         &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
-        !-------------------------------------------------------------!
-      END IF
+        !--------------------------------------------------------------!
+      END IF tree_top
+      !----------------------------------------------------------------!
     END DO
-  END IF
+  END IF over_area
 END DO
 
 !----------------------------------------------------------------------!
-! Calculate new individual H, LAI, etc. given r, Acrown, and iPAR.
+! Calculate new individual LAI, etc. given r, Acrown, and iPAR.
 !----------------------------------------------------------------------!
 INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
-  ! Index of living individual
+  ! Index of living individual                                       (n)
   !--------------------------------------------------------------------!
   KI = LIVING (I)
-  !--------------------------------------------------------------------!
-  ! Stem length above ground (i.e. height)                           (m)
-  !--------------------------------------------------------------------!
-  H (KI) = alpha * r (KI) ** beta
-  !--------------------------------------------------------------------!
-  ! Height in canopy depth units                            (DZ_CROWN_M)
-  !--------------------------------------------------------------------!
-  ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
   !--------------------------------------------------------------------!
   ! Stem horizontal cross-sectional area                           (m^2)
   !--------------------------------------------------------------------!
@@ -167,15 +176,30 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Restrict foliage area and heartwood area if iPAR-limit exceeded.
   !--------------------------------------------------------------------!
-  IF (Afol_iPAR < Afol_sap) THEN
+  iPAR_limits_test : IF (Afol_iPAR < Afol_sap) THEN
+    !------------------------------------------------------------------!
+    ! Foliage area must be reduced because of incident light.
+    !------------------------------------------------------------------!
+    ! Fraction of foliage area that must be lost              (fraction)
     !------------------------------------------------------------------!
     floss = 1.0 - Afol_iPAR / Afol_sap
+    !------------------------------------------------------------------!
+    ! Increase heartwood area appropriately                        (m^2)
+    !------------------------------------------------------------------!
     Aheart (KI) = Aheart (KI) + floss * Afoliage (KI) / FASA
     Aheart (KI) = MIN (Aheart(KI),Astem)
+    !------------------------------------------------------------------!
+    ! Set foliage area to light-limited value                      (m^2)
+    !------------------------------------------------------------------!
     Afoliage (KI) = Afol_iPAR
+    !------------------------------------------------------------------!
   ELSE
+    !------------------------------------------------------------------!
+    ! Foliage area is OK at sapwood-limited area                   (m^2)
+    !------------------------------------------------------------------!
     Afoliage (KI) = Afol_sap
-  ENDIF
+    !------------------------------------------------------------------!
+  ENDIF iPAR_limits_test
   !--------------------------------------------------------------------!
   ! Set height to base of crown using foliage area density  (DZ_CROWN_M)
   !--------------------------------------------------------------------!
@@ -184,10 +208,10 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Keep height to base of crown within sensible bounds     (DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  IF (ib (KI) > ih (KI)) THEN
+  IF (ib (KI) >= ih (KI)) THEN
     ib (KI) = ih (KI)
     Afoliage (KI) = 0.0
-    Acrown (KI) = 0.0
+    Acrown   (KI) = 0.0
   END IF
   IF (ib (KI) < 0) THEN
     ib (KI) = 0

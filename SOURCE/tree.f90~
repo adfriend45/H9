@@ -15,13 +15,12 @@ REAL   , ALLOCATABLE :: Aheart (:) ! Heartwood area                (m^2)
 !----------------------------------------------------------------------!
 ! Derived tree variables.
 !----------------------------------------------------------------------!
-INTEGER, ALLOCATABLE :: ih     (:)   ! Crown height           (DZ_CROWN)
-REAL   , ALLOCATABLE :: rwidth (:,:) ! Stem ring width               (m)
+INTEGER, ALLOCATABLE :: ih             (:) ! Crown height     (DZ_CROWN)
+REAL   , ALLOCATABLE :: rwidth       (:,:) ! Stem ring width         (m)
 REAL   , ALLOCATABLE :: Acrowns_layers (:) ! Sum crown area/layer  (m^2)
+REAL   , ALLOCATABLE :: rold           (:) ! Saved stem radius       (m)
+REAL   , ALLOCATABLE :: H              (:) ! Stem height             (m)
 
-REAL   , ALLOCATABLE :: Acrowns_layers_saved (:)
-REAL, ALLOCATABLE :: rold     (:) ! Saved stem radius                (m)
-REAL, ALLOCATABLE :: H        (:) ! Stem height                      (m)
 REAL, ALLOCATABLE :: Afoliage (:) ! Foliage area                   (m^2)
 REAL, ALLOCATABLE :: fPAR (:) ! fPAR for each tree (fraction)
 REAL, ALLOCATABLE :: Acrown (:)   ! Tree crown area                (m^2)

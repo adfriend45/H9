@@ -18,6 +18,7 @@ REAL :: LAI_above,space,frac
 ! Now allowing crown overlap within crowns, maybe better to calculate
 ! fPAR of whole plot and then divide this into trees, somehow.
 ! By all layers?
+! For LAI:
 ! Instead of iPAR, use the PAR irradiance at the bottom of the crown
 ! in the absence of that individual to see how much more foliage
 ! could be added?
@@ -28,26 +29,32 @@ REAL :: LAI_above,space,frac
 Acrowns_above  (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
-INDIVIDUALS_areas_above: DO I = 1, NIND_alive
+individuals_areas_above : DO I = 1, NIND_alive
   KI = LIVING (I)
-  INDIVIDUALS_above: DO J = 1, NIND_alive
+  individuals_above : DO J = 1, NIND_alive
     KJ = LIVING (J)
-    DIFFERENT: IF (KJ .NE. KI) THEN
-      ! Float h(KI) to increase accuracy?
-      TALLER: IF (ih (KJ) > ih (KI)) THEN
-        Acrowns_above  (KI) = Acrowns_above  (KI) + Acrown   (KJ)
+    different : IF (KJ .NE. KI) THEN
+      taller : IF (ih (KJ) > ih (KI)) THEN
+        Acrowns_above  (KI) = Acrowns_above (KI) + Acrown   (KJ)
         IF (ib (KJ) < ih (KI)) THEN ! Overlap.
+          !------------------------------------------------------------!
+          ! frac is fraction of taller tree's crown that is above
+          ! tree KI                                           (fraction)
+          !------------------------------------------------------------!
           frac = (FLOAT (ih (KJ)) - FLOAT (ih (KI))) / &
           &      (FLOAT (ih (KJ)) - FLOAT (ib (KJ)))
-        ELSE ! No overlap.
+          !------------------------------------------------------------!
+        ELSE
+          !------------------------------------------------------------!
+          ! No overlap.
+          !------------------------------------------------------------!
           frac = 1.0
+          !------------------------------------------------------------!
         END IF
-        frac = 1.0
         Afoliage_above (KI) = Afoliage_above (KI) + frac * Afoliage (KJ)
-        !Afoliage_above (KI) = Afoliage_above (KI) + Afoliage (KJ)
-      END IF TALLER
-    END IF DIFFERENT
-  END DO INDIVIDUALS_above
+      END IF taller
+    END IF different
+  END DO individuals_above
   !--------------------------------------------------------------------!
   ! Open horizontal area above available for individual KI.
   !--------------------------------------------------------------------!
@@ -55,13 +62,19 @@ INDIVIDUALS_areas_above: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Fraction of crown shaded (fraction).
   !--------------------------------------------------------------------!
-  SHADE_fraction: IF (Acrown (KI) <= space) THEN
+  shade_fraction: IF (Acrown (KI) <= space) THEN
+    !------------------------------------------------------------------!
     ! Crown fits in gap, so assume KI not shaded at all.
+    !------------------------------------------------------------------!
     shade (KI) = 0.0
+    !------------------------------------------------------------------!
   ELSE
+    !------------------------------------------------------------------!
     ! At least some taller trees overlap KI.
+    !------------------------------------------------------------------!
     shade (KI) = (Acrown (KI) - space) / Acrown (KI)
-  END IF SHADE_fraction
+    !------------------------------------------------------------------!
+  END IF shade_fraction
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above tree                            (m^2/m^2)
   !--------------------------------------------------------------------!
@@ -75,7 +88,7 @@ INDIVIDUALS_areas_above: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
   !--------------------------------------------------------------------!
-END DO INDIVIDUALS_areas_above ! I = 1, NIND_alive
+END DO individuals_areas_above ! I = 1, NIND_alive
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light
