@@ -39,16 +39,16 @@ INTEGER :: H_MAX      ! Maximum possible tree height                 (m)
 !----------------------------------------------------------------------!
 INTEGER :: NDAY   ! No. internal timesteps per day                 (ITU)
 REAL    :: DTTR   ! Tree growth time step                            (s)
-INTEGER :: ITE1   ! Length of model run                              (s)
-INTEGER :: ITIMEI ! Start of model run                (internal time, s)
-INTEGER :: ITIMEE ! End of model run                  (internal time, s)
+INTEGER :: ITE1   ! Length of model run                            (ITU)
+INTEGER :: ITIMEI ! Start of model run              (internal time, ITU)
+INTEGER :: ITIMEE ! End of model run                (internal time, ITU)
 INTEGER :: N_LAYERS ! No. horizontal layers in plot                  (n)
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Variables calculated internally.
 !----------------------------------------------------------------------!
-INTEGER :: ITIME      ! Internal time                                (s)
+INTEGER :: ITIME      ! Internal time                              (ITU)
 INTEGER :: JYEAR      ! Current year          (Julian calendar year, yr)
 INTEGER :: JMON       ! Current month    (Julian calendar month, months)
 INTEGER :: JDAY       ! Current day          (Julian calendar day, days)

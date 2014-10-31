@@ -24,7 +24,7 @@ INTEGER, PARAMETER :: JDENDOFM (0:JMPERED) = &
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-REAL, PARAMETER :: EPS       = 1.0E-8 ! Epsilon for FPops            (x)
+REAL, PARAMETER :: EPS       = 1.0E-3 ! Epsilon for FPops            (x)
 REAL, PARAMETER :: PI        = 3.1416 ! Ratio of circ' to diam'  (ratio)
 REAL, PARAMETER :: KGCPERMOL =  0.012 ! Kg C per mol C          (kg/mol)
 REAL, PARAMETER :: FORMF     =    1.0 ! Tree form factor      (unitless)

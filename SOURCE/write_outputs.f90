@@ -19,7 +19,7 @@ IMPLICIT NONE
 IF (F_OUT == 1) WRITE (22,8000) JYEAR,NIND_alive,NYRS,NIND_max,Aplot
 8000 FORMAT (I5,I10,I5,I10,F8.1)
 
-INDIVIDUALS: DO I = 1, NIND_alive
+individuals: DO I = 1, NIND_alive
   KI = LIVING (I)
   IF (F_OUT == 1) THEN
     WRITE (22, 8001) FLOAT (ib(KI))*DZ_CROWN_M,                       &
@@ -29,7 +29,7 @@ INDIVIDUALS: DO I = 1, NIND_alive
                      LAIcrown (KI),                                   &
                      r        (KI)
   END IF
-END DO INDIVIDUALS
+END DO individuals
 8001 format (6F15.7)
 
 KI = LIVING (1)
@@ -39,6 +39,8 @@ WRITE (21, 8002) JYEAR,NIND_alive,NPP_ann_acc,Acrown(KI),             &
 8002 format (I7,I7,5F12.4,I7,2F10.4)
 
 KI = LIVING (1)
+WRITE (*,*) 'KI = ',KI
+KI = 1186
 WRITE (23,8003) JYEAR                   , & ! 0
 &               Cv     (KI)             , & ! 1
 &               Aheart (KI)             , & ! 2

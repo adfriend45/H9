@@ -12,7 +12,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 27th October, 2014
+! Date last modified : 29th October, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -30,8 +30,8 @@ CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
 INTEGER :: n
-!INTEGER, DIMENSION (1) :: seed = (/3/) !TTR Not used
-REAL :: Asapwood
+INTEGER, DIMENSION (1) :: seed = (/3/)
+REAL :: Asapwood,Afoliage_sum
 INTEGER :: tall,short
 !----------------------------------------------------------------------!
 ! Open run control text file.
@@ -127,24 +127,34 @@ DO I = 1, NIND_max
   DO WHILE (RANDOM == 0.0)
     CALL RANDOM_NUMBER (RANDOM)
   END DO
-  !D = RANDOM * 0.01 + 0.001  ! Stem diameter                         (m)
+  !D = RANDOM * 0.01 + 0.001  ! Stem diameter                        (m)
   D = RANDOM * 0.001 + 0.0001  ! Stem diameter                       (m)
-  r (KI) = D / 2.0           ! Stem radius                           (m)
-  rold (KI) = r (KI)         ! Saved stem radius                     (m)
-  H (KI) = alpha * r (KI) ** beta  ! Stem height                     (m)
+  r    (KI) = D / 2.0  ! Stem radius                                 (m)
+  !--------------------------------------------------------------------!
+  ! Save stem radius for ring width computation                      (m)
+  !--------------------------------------------------------------------!
+  rold (KI) = r (KI)
+  !--------------------------------------------------------------------!
+  ! Stem height                                                      (m)
+  !--------------------------------------------------------------------!
+  H (KI) = alpha * r (KI) ** beta
   !--------------------------------------------------------------------!
   ! Tree height as integer                                    (DZ_CROWN)
   !--------------------------------------------------------------------!
   ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  ib (KI) = 0                 ! Height to base of crown             (mm)
+  ib (KI) = 0                 ! Height to base of crown       (DZ_CROWN)
   Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
   Aheart (KI)= 0.0            ! Heartwood area                     (m^2)
   Asapwood = PI * r (KI) ** 2  - Aheart (KI) ! Sapwood area        (m^2)
-  Afoliage (KI) = FASA * Asapwood      ! Foliage area              (m^2)
-  LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
-  V = (FORMF / 3.0)  * pi * r (KI) ** 2 * H (KI) ! Stem volume     (m^3)
+  !--------------------------------------------------------------------!
+  ! Foliage area from sapwood area                                 (m^2)
+  !--------------------------------------------------------------------!
+  Afoliage (KI) = FASA * Asapwood
+  !--------------------------------------------------------------------!
+  LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)        ! (m^2/m^2)
+  V = (FORMF / 3.0) * pi * r (KI) ** 2 * H (KI) ! Stem volume      (m^3)
   Cv (KI) = SIGC * V          ! Stem carbon                         (kg)
   NIND_alive = NIND_alive + 1
 END DO
@@ -227,7 +237,8 @@ DO WHILE (ITIME < ITIMEE)
   ! Accumulated diagnostics and re-calculate plot light profile at end
   ! of each year.
   !--------------------------------------------------------------------!
-  IF ((MOD (ITIME, NDAY) == 0) .AND. (JDAY == JDENDOFM (12))) THEN
+  end_of_year : IF ((MOD (ITIME, NDAY) == 0) .AND. &
+                &   (JDAY == JDENDOFM (12))) THEN
     !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
@@ -241,9 +252,9 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     CALL mortal
     !------------------------------------------------------------------!
-    ! Initialise plot LAI diagnostic                           (m^2/m^2)
+    ! Initialise sum of foliage areas                              (m^2)
     !------------------------------------------------------------------!
-    LAI = 0.0
+    Afoliage_sum = 0.0
     !------------------------------------------------------------------!
     DO I = 1, NIND_alive
       !----------------------------------------------------------------!
@@ -251,9 +262,9 @@ DO WHILE (ITIME < ITIMEE)
       !----------------------------------------------------------------!
       KI = LIVING (I)
       !----------------------------------------------------------------!
-      ! Accumulate plot foliage area across individuals        (m^2/m^2)
+      ! Accumulate plot foliage area across individuals            (m^2)
       !----------------------------------------------------------------!
-      LAI = LAI + Afoliage (KI)
+      Afoliage_sum = Afoliage_sum + Afoliage (KI)
       !----------------------------------------------------------------!
       ! Stem annual ring width                                       (m)
       !----------------------------------------------------------------!
@@ -263,7 +274,7 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     ! Plot LAI                                                 (m^2/m^2)
     !------------------------------------------------------------------!
-    LAI = LAI / (Aplot + EPS)              
+    LAI = Afoliage_sum / (Aplot + EPS)
     !------------------------------------------------------------------!
     CALL write_outputs
     write (20,*) NIND_alive
@@ -276,11 +287,11 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     rold (:) = r (:)
     !------------------------------------------------------------------!
-  ENDIF
+  ENDIF end_of_year
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
-  ITIME = ITIME + 1 ! Increment Internal Time Units.
+  ITIME = ITIME + 1 ! Increment Internal Time                      (ITU)
   !--------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
