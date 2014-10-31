@@ -30,7 +30,7 @@ CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
 INTEGER :: n
-INTEGER, DIMENSION (1) :: seed = (/3/)
+!INTEGER, DIMENSION (1) :: seed = (/3/) !TTR Not used
 REAL :: Asapwood
 INTEGER :: tall,short
 !----------------------------------------------------------------------!
@@ -324,7 +324,7 @@ END DO INDIVIDUALS_layers
 tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
 short = MINVAL (ib(LIVING(1:NIND_alive)))
 !----------------------------------------------------------------------!
-DO L = tall, short, -1
+DO L = tall, short, -1 
   WRITE (99,*) L,FLOAT(L)*DZ_CROWN_M,Acrowns_layers(L)
 END DO
 !----------------------------------------------------------------------!

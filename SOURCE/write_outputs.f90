@@ -22,15 +22,19 @@ IF (F_OUT == 1) WRITE (22,8000) JYEAR,NIND_alive,NYRS,NIND_max,Aplot
 INDIVIDUALS: DO I = 1, NIND_alive
   KI = LIVING (I)
   IF (F_OUT == 1) THEN
-    WRITE (22, 8001) JYEAR-YEARI+1, KI, ib (KI), ih (KI),            &
-                     LAIcrown (KI), r (KI), Acrown (KI), shade (KI)
+    WRITE (22, 8001) FLOAT (ib(KI))*DZ_CROWN_M,                       &
+                     FLOAT (ih(KI))*DZ_CROWN_M,                       &
+                     Acrown   (KI),                                   &
+                     shade    (KI),                                   &
+                     LAIcrown (KI),                                   &
+                     r        (KI)
   END IF
 END DO INDIVIDUALS
-8001 format (4I5,4F15.7)
+8001 format (6F15.7)
 
 KI = LIVING (1)
-WRITE (21, 8002) JYEAR,NIND_alive,NPP_ann_acc,Acrown(KI),              &
-                 1.0e3*rwidth(JYEAR-YEARI+1,KI),LAI,Aheart(KI),         &
+WRITE (21, 8002) JYEAR,NIND_alive,NPP_ann_acc,Acrown(KI),             &
+                 1.0e3*rwidth(JYEAR-YEARI+1,KI),LAI,Aheart(KI),       &
                  ib(KI),h(KI),2.0*r(KI)
 8002 format (I7,I7,5F12.4,I7,2F10.4)
 
