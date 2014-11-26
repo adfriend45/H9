@@ -59,6 +59,7 @@ DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   Dcrown = 2.0 * SQRT (Acrown (KI) / PI)
   dDcrown = (a_cd + b_cd * D) - Dcrown
+  !dDcrown = 29.0 * D - Dcrown
   dDcrown = MIN (dDcrown, 2.0 * BG_MAX)
   !--------------------------------------------------------------------!
   ! Crown diameter                                                   (m)
@@ -209,9 +210,9 @@ INDIVIDUALS: DO I = 1, NIND_alive
   ! Keep height to base of crown within sensible bounds     (DZ_CROWN_M)
   !--------------------------------------------------------------------!
   IF (ib (KI) >= ih (KI)) THEN
-    ib (KI) = ih (KI)
-    Afoliage (KI) = 0.0
-    Acrown   (KI) = 0.0
+    ib (KI) = ih (KI) - 1
+    !Afoliage (KI) = 0.0
+    !Acrown   (KI) = 0.0
   END IF
   IF (ib (KI) < 0) THEN
     ib (KI) = 0
