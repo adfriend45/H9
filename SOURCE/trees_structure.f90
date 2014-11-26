@@ -58,8 +58,8 @@ DO I = 1, NIND_alive
   D = 2.0 * r (KI)
   !--------------------------------------------------------------------!
   Dcrown = 2.0 * SQRT (Acrown (KI) / PI)
-  dDcrown = (a_cd + b_cd * D) - Dcrown
-  !dDcrown = 29.0 * D - Dcrown
+  !dDcrown = (a_cd + b_cd * D) - Dcrown
+  dDcrown = 29.0 * D - Dcrown
   dDcrown = MIN (dDcrown, 2.0 * BG_MAX)
   !--------------------------------------------------------------------!
   ! Crown diameter                                                   (m)

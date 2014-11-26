@@ -12,7 +12,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 29th October, 2014
+! Date last modified : 26th November, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -144,7 +144,8 @@ DO I = 1, NIND_max
   ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
   !--------------------------------------------------------------------!
   ib (KI) = 0                 ! Height to base of crown       (DZ_CROWN)
-  Dcrown = a_cd + b_cd * D             ! Crown diameter              (m)
+  !Dcrown = a_cd + b_cd * D   ! Crown diameter                       (m)
+  Dcrown = 29.0 * D           ! Crown diameter                       (m)
   Acrown (KI) = pi * (Dcrown / 2.0) ** 2 ! Crown area              (m^2)
   Aheart (KI)= 0.0            ! Heartwood area                     (m^2)
   Asapwood = PI * r (KI) ** 2  - Aheart (KI) ! Sapwood area        (m^2)
