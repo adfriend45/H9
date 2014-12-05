@@ -31,7 +31,7 @@ REAL, PARAMETER :: KGCPERMOL =  0.012 ! Kg C per mol C          (kg/mol)
 REAL, PARAMETER :: FORMF     =    1.0 ! Tree form factor      (unitless)
 REAL, PARAMETER :: SIGC      =  350.0 ! Wood density           (kgC/m^3)
 REAL, PARAMETER :: SIGAF     =   0.28 ! Foliage area density   (m^2/m^3)
-REAL, PARAMETER :: BRC_limit =  0.645 ! BRC under full shade     (ratio)
+REAL, PARAMETER :: BRC_limit = 0.645  ! BRC under full shade     (ratio)
 !----------------------------------------------------------------------!
 ! Height allometry from Bartelink (1997).
 !----------------------------------------------------------------------!

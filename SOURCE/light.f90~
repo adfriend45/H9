@@ -114,6 +114,7 @@ individuals_areas_above : DO I = 1, NIND_alive
   ! Mean iPAR at the bottom of tree for hbc.
   !--------------------------------------------------------------------!
   iPAR_base (KI) = EXP (-0.5 * LAI_above_base)
+  write (*,*) iPAR_base (1)
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!

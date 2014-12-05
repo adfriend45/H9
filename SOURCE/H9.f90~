@@ -205,7 +205,7 @@ END IF
 !----------------------------------------------------------------------!
 CALL getenv('OUTPUT3',output) ! Normally 'diag.txt'.
 OPEN (23,FILE=output,STATUS='UNKNOWN')
-WRITE (23,*) '13' ! No. data columns in diag.txt
+WRITE (23,*) '12' ! No. data columns in diag.txt
 WRITE (23,*) NYRS ! No. data lines   in diag.txt
 WRITE (23,'(A123)') '&
 &JYEAR      &

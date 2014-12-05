@@ -34,7 +34,7 @@ END DO individuals
 8001 format (6F15.7)
 
 !KI = LIVING (1)
-KI = 35
+KI = 5
 ! Normally 'output_ann.txt'.
 WRITE (21, 8002) JYEAR, &
 &  NIND_alive                    , &
@@ -49,6 +49,7 @@ WRITE (21, 8002) JYEAR, &
 8002 format (I7,I7,5F12.4,I7,2F10.4)
 
 !KI = LIVING (5)
+KI = 5
 ! Normally 'diag.txt'.
 WRITE (23,8003) JYEAR                   , & ! 0
 &               2.0*r(KI)               , & ! 1
@@ -61,8 +62,8 @@ WRITE (23,8003) JYEAR                   , & ! 0
 &               Afoliage(KI)            , & ! 8
 &               1.0e3*rwidth(JYEAR-YEARI+1,KI), & !  9
 &               LAI                           , & ! 10
-&               LAIcrown (KI)           , & ! 11
-&               NIND_alive                        ! 12
+&               LAIcrown (KI)           , &
+&               NIND_alive                        ! 11
 8003 FORMAT (I5,11F12.4,I10)
 
 !---------------------------------------------------------------------!

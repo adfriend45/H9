@@ -169,6 +169,7 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !x = ((LOG(iPAR_base(KI)))/(-0.5)-(LOG(0.03))/(-0.5))/ &
   !&   ((LOG(iPAR_base(KI)))/(-0.5))
   x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
+  write (98,*) KI,iPAR_base(KI)
   !write (*,*) log (0.03)/(-0.5),log(0.1)/(-0.5)
   !write (*,*) (log (0.03)/(-0.5)-log(0.1)/(-0.5)) / (log (0.03)/(-0.5))
   !stop

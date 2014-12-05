@@ -20,7 +20,7 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 INTEGER :: tall,short
 REAL :: LAIc,Astem,Asapwood
-REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
+REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,LCR,Ah
 !----------------------------------------------------------------------!
 
 ! First, calculate potential crown areas based on D and maximum
@@ -148,40 +148,23 @@ END DO
 
 !----------------------------------------------------------------------!
 ! Calculate new individual LAI, etc. given r, Acrown, and iPAR.
-write (98,*)
 !----------------------------------------------------------------------!
 INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Index of living individual                                       (n)
   !--------------------------------------------------------------------!
   KI = LIVING (I)
+  ! Try just growing a bif of heartwood if too little light at base of
+  ! crown.
   !--------------------------------------------------------------------!
   ! Stem horizontal cross-sectional area                           (m^2)
   !--------------------------------------------------------------------!
   Astem = PI * r (KI) ** 2
-  ! LAI 
-  !LAIc = LOG (0.03) / (-0.5)
-  !Ah = Astem - Acrown (KI) * LAIc / FASA
-  !write (*,*) (log(0.01)-log(0.03))/log(0.01)
-  !stop
-  !x = (LAIcrown (KI) - LOG (0.03) / (-0.5)) / LAIcrown (KI)
-  !x = (LOG (iPAR_base (KI)) - LOG (0.03)) / LOG (iPAR_base (KI))
-  !x = ((LOG(iPAR_base(KI)))/(-0.5)-(LOG(0.03))/(-0.5))/ &
-  !&   ((LOG(iPAR_base(KI)))/(-0.5))
-  x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
-  !write (*,*) log (0.03)/(-0.5),log(0.1)/(-0.5)
-  !write (*,*) (log (0.03)/(-0.5)-log(0.1)/(-0.5)) / (log (0.03)/(-0.5))
-  !stop
-  ! Following not having big enough effect on overall LAI because not
-  ! accounting for fact the other trees are contributing to iPAR_base.
-  IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem - Aheart (KI))
-  !x = 0.2
-  !IF (iPAR_base (KI) < 0.03) Aheart (KI) = Aheart (KI) + x * (Astem &
-  !&        - Aheart (KI))
-  !Aheart (KI) = MAX (Aheart (KI), Ah)
-  !x = LAIcrown (KI) - LOG (0.03) / (-0.5)
-  !x = MAX (0.0,x)
-  !Aheart (KI) = Aheart (KI) + (x / LAIcrown (KI)) * (Astem - Aheart (KI))
+  !if (ipar_base (ki) < 0.14) aheart (ki) = aheart (ki) + 0.05 * astem
+  !if (ipar_base (ki) < 0.14) ib (ki) = ib (ki) + 500
+  LAIc = LOG (0.03) / (-0.5)
+  Ah = Astem - Acrown (KI) * LAIc / FASA
+  Aheart (KI) = MAX (Aheart (KI), Ah)
   !--------------------------------------------------------------------!
   ! Stem sapwood area                                              (m^2)
   !--------------------------------------------------------------------!
@@ -191,22 +174,80 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   Afol_sap = FASA * Asapwood
   !--------------------------------------------------------------------!
-  ! Foliage area                                                   (m^2)
+  ! iPAR-limited LAI                                           (m^2/m^3)
   !--------------------------------------------------------------------!
-  Afoliage (KI) = Afol_sap
+  !LAIc = LOG (0.03 / (iPAR (KI) + EPS)) / (-0.5)
+  !LAIc = LOG (0.14 / (iPAR (KI) + EPS)) / (-0.5) !****adf
+  !--------------------------------------------------------------------!
+  ! iPAR-limited foliage area                                      (m^2)
+  !--------------------------------------------------------------------!
+  !Afol_iPAR = LAIc * Acrown (KI)
+  !--------------------------------------------------------------------!
+  ! Restrict foliage area and heartwood area if iPAR-limit exceeded.
+  !--------------------------------------------------------------------!
+  !iPAR_limits_test : IF (Afol_iPAR < Afol_sap) THEN
+    !------------------------------------------------------------------!
+    ! Foliage area must be reduced because of incident light.
+    !------------------------------------------------------------------!
+    ! Fraction of foliage area that must be lost              (fraction)
+    !------------------------------------------------------------------!
+    !floss = 1.0 - Afol_iPAR / Afol_sap
+    !------------------------------------------------------------------!
+    ! Increase heartwood area appropriately                        (m^2)
+    !------------------------------------------------------------------!
+    !Aheart (KI) = Aheart (KI) + floss * Afoliage (KI) / FASA
+    !Aheart (KI) = MIN (Aheart(KI),Astem)
+    !Aheart (KI) = 0.0 !****adf
+    !------------------------------------------------------------------!
+    ! Set foliage area to light-limited value                      (m^2)
+    !------------------------------------------------------------------!
+    !Afoliage (KI) = Afol_iPAR
+    !------------------------------------------------------------------!
+  !ELSE
+    !------------------------------------------------------------------!
+    ! Foliage area is OK at sapwood-limited area                   (m^2)
+    !------------------------------------------------------------------!
+    Afoliage (KI) = Afol_sap
+    !------------------------------------------------------------------!
+  !ENDIF iPAR_limits_test
   !--------------------------------------------------------------------!
   ! Foliage biomass                                             (kg[DM})
   !--------------------------------------------------------------------!
   Bfoliage (KI) = Afoliage (KI) / SLA
   !--------------------------------------------------------------------!
-  ! Set height to base of crown using basal light. Slope of
-  ! relationship tuned to Bartelink (1997) data using idea from
-  ! O'Connell & Kelty (1994). Should perhaps add constraint on rate of
-  ! change. BCR is the ratio of the height to the base of the crown
-  ! to the total tree height.
+  ! Set height to base of crown using foliage area density  (DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  BCR = BRC_limit * (1.0 - iPAR_base (KI))
-  ib (KI) = NINT (FLOAT (ih (KI)) * BCR)
+  !ib (KI) = ih (KI) - NINT (Afoliage (KI) / (SIGAF * Acrown (KI) * &
+  !&         DZ_CROWN_M))
+  !ib (KI) = 0 !****adf
+  !****adf
+  !ib (KI) = ih (KI) - NINT (Afoliage (KI) / (1.1 * Acrown (KI) * &
+  !&         DZ_CROWN_M))
+  !IF (iPAR_base (KI) < 0.141) ib (KI) = ib (KI) + 500
+  !write (*,*) iPAR_base (KI)
+  !ib (KI) = MIN (ib (KI), ih(KI)/2)
+  ! Live crown ratio from shading (after O'Connell and Kelty, 1994).
+  LCR = 1.0 - (4.0 * (0.96-0.81)/(0.98-0.05)) * (1.0 - iPAR_base (KI))
+  ib (KI) = NINT (FLOAT (ih (KI)) * (1.0 - LCR))
+  !ib (KI) = ih (KI) / 2
+  !****adf
+  !--------------------------------------------------------------------!
+  ! Keep height to base of crown within sensible bounds     (DZ_CROWN_M)
+  !--------------------------------------------------------------------!
+  !IF (ib (KI) >= ih (KI)) THEN
+  !  ib (KI) = ih (KI) - 1
+    !Afoliage (KI) = 0.0
+    !Acrown   (KI) = 0.0
+  !END IF
+  !IF (ib (KI) < 0) THEN
+  !  ib (KI) = 0
+  !  Afoliage (KI) = SIGAF * FLOAT (ih (KI) - ib (KI)) * DZ_CROWN_M *   &
+  !  &               Acrown (KI)
+  !****adf
+  !  Afoliage (KI) = 1.1 * FLOAT (ih (KI) - ib (KI)) * DZ_CROWN_M *   &
+  !  &               Acrown (KI)
+  !****adf
+  !END iF
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   !--------------------------------------------------------------------!

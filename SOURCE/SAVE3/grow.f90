@@ -27,9 +27,8 @@ LIVING_Individuals: DO I = 1, NIND_alive
   !write (*,*) 0.5*0.012*(1.0-EXP(-0.5*7.0))*11.0e-6*60.0*60.0*24.0*365.0
   !stop
   !--------------------------------------------------------------------!
-  GPP   = 11.0e-6 * fPAR (KI) ! Crown gross photosynthesis  (molC/m^2/s)
-  !GPP   = 5.0e-6 * fPAR (KI) ! Crown gross photosynthesis  (molC/m^2/s)
-  !GPP   = 1.0e-6 * fPAR (KI) ! Crown gross photosynthesis  (molC/m^2/s)
+  !GPP   = 11.0e-6 * fPAR (KI) ! Crown gross photosynthesis  (molC/m^2/s)
+  GPP   = 5.0e-6 * fPAR (KI) ! Crown gross photosynthesis  (molC/m^2/s)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
@@ -39,10 +38,7 @@ LIVING_Individuals: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   GPP = GPP * (0.9 + RANDOM / 5.0)
   !--------------------------------------------------------------------!
-  Resp  = 0.5 * GPP ! Maintenance respiration              (molC/m^2/s)
-  ! Maintenance respiration                                 (molC/m^2/s)
-  ! Increased to try and kill trees, but seems to have opposite effect.
-  !Resp  = 0.5 * GPP + 0.000001 * Cv (KI)
+  Resp  = 0.5 * GPP ! Maintenance respiration               (molC/m^2/s)
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!
@@ -62,7 +58,6 @@ LIVING_Individuals: DO I = 1, NIND_alive
 
   !--------------------------------------------------------------------!
   Cv (KI) = Cv (KI) + DTTR * dCv
-  !Cv (KI) = MAX (0.0,Cv(KI)) !****adf
   !--------------------------------------------------------------------!
 
   !--------------------------------------------------------------------!

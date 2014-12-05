@@ -132,7 +132,7 @@ DO I = 1, NIND_max
   END DO
   !D = RANDOM * 0.01 + 0.001  ! Stem diameter                        (m)
   D = RANDOM * 0.001 + 0.0001  ! Stem diameter                       (m)
-  !D = 0.001 !****adf
+  D = 0.001 !****adf
   r    (KI) = D / 2.0  ! Stem radius                                 (m)
   !--------------------------------------------------------------------!
   ! Save stem radius for ring width computation                      (m)
@@ -205,7 +205,7 @@ END IF
 !----------------------------------------------------------------------!
 CALL getenv('OUTPUT3',output) ! Normally 'diag.txt'.
 OPEN (23,FILE=output,STATUS='UNKNOWN')
-WRITE (23,*) '13' ! No. data columns in diag.txt
+WRITE (23,*) '12' ! No. data columns in diag.txt
 WRITE (23,*) NYRS ! No. data lines   in diag.txt
 WRITE (23,'(A123)') '&
 &JYEAR      &
