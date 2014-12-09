@@ -12,16 +12,8 @@ USE TREE
 !----------------------------------------------------------------------!
 IMPLICIT NONE
 INTEGER :: KJ
-REAL :: LAI_above,space,frac,LAI_above_base
+REAL :: LAI_above,space,frac,LAI_above_base,iPAR
 !----------------------------------------------------------------------!
-
-! Now allowing crown overlap within crowns, maybe better to calculate
-! fPAR of whole plot and then divide this into trees, somehow.
-! By all layers?
-! For LAI:
-! Instead of iPAR, use the PAR irradiance at the bottom of the crown
-! in the absence of that individual to see how much more foliage
-! could be added?
 
 !----------------------------------------------------------------------!
 ! Go through individuals to calculate fPAR.
@@ -105,7 +97,7 @@ individuals_areas_above : DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Mean iPAR at top of tree                                  (fraction)
   !--------------------------------------------------------------------!
-  iPAR (KI) = (1.0 - shade (KI)) + shade (KI) * EXP (-0.5 * LAI_above)
+  iPAR = (1.0 - shade (KI)) + shade (KI) * EXP (kext * LAI_above)
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above base of tree                    (m^2/m^2)
   !--------------------------------------------------------------------!
@@ -113,14 +105,15 @@ individuals_areas_above : DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Mean iPAR at the bottom of tree for hbc.
   !--------------------------------------------------------------------!
-  iPAR_base (KI) = EXP (-0.5 * LAI_above_base)
-  write (*,*) iPAR_base (1)
+  iPAR_base (KI) = EXP (kext * LAI_above_base)
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
-  fPAR (KI) = iPAR (KI) * (1.0 - EXP (-0.5 * LAIcrown (KI)))
+  fPAR (KI) = iPAR * (1.0 - EXP (kext * LAIcrown (KI)))
+  write (*,*) KI,iPAR , 1.0 , , LAIcrown (KI)
   !--------------------------------------------------------------------!
 END DO individuals_areas_above ! I = 1, NIND_alive
+!----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 END SUBROUTINE light

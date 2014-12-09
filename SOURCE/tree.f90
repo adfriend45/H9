@@ -22,17 +22,17 @@ REAL   , ALLOCATABLE :: rold           (:) ! Saved stem radius       (m)
 REAL   , ALLOCATABLE :: H              (:) ! Stem height             (m)
 REAL   , ALLOCATABLE :: Afoliage       (:) ! Foliage area          (m^2)
 REAL   , ALLOCATABLE :: Bfoliage       (:) ! Foliage biomass    (kg[DM])
+REAL   , ALLOCATABLE :: fPAR           (:) ! fPAR for each tree   (frac)
 
-REAL, ALLOCATABLE :: fPAR (:) ! fPAR for each tree (fraction)
+REAL, ALLOCATABLE :: iPAR_base (:) ! Relative PAR at bottom of crown (fraction)
+REAL, ALLOCATABLE :: shade (:) ! Fraction of crown being shaded by higher trees
 REAL, ALLOCATABLE :: Acrown (:)   ! Tree crown area                (m^2)
 REAL, ALLOCATABLE :: LAIcrown (:) ! Tree crown LAI             (m^2/m^2)
 REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: Afoliage_above_base (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
-REAL, ALLOCATABLE :: iPAR (:) ! Relative PAR at top of crown (fraction)
-REAL, ALLOCATABLE :: iPAR_base (:) ! Relative PAR at bottom of crown (fraction)
-REAL, ALLOCATABLE :: shade (:) ! Fraction of crown being shaded by higher trees !TTR record the area shaded for each tree for visulisation
+!TTR record the area shaded for each tree for visulisation
 !----------------------------------------------------------------------!
 ! Internal intermediate variables.
 !----------------------------------------------------------------------!

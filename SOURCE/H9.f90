@@ -12,7 +12,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 26th November, 2014
+! Date last modified : 9th December, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -29,9 +29,9 @@ CHARACTER (LEN = 100) :: driver         ! Filename for driver file.
 CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
-INTEGER :: n
+INTEGER :: n,Ind
 INTEGER, DIMENSION (1) :: seed = (/3/)
-REAL :: Asapwood,Afoliage_sum
+REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save
 INTEGER :: tall,short
 !----------------------------------------------------------------------!
 ! Open run control text file.
@@ -70,23 +70,23 @@ WRITE (20,'(A8,I10  ,A3)') 'IHRI  = ',IHRI ,' hr'
 !----------------------------------------------------------------------!
 N_LAYERS = (1000 * H_MAX) / DZ_CROWN
 ALLOCATE (LIVING    (NIND_max))
+ALLOCATE (ib        (NIND_max))
 ALLOCATE (Cv        (NIND_max))
 ALLOCATE (Aheart    (NIND_max))
-ALLOCATE (ib        (NIND_max))
+ALLOCATE (ih        (NIND_max))
+ALLOCATE (rwidth    (NYRS,NIND_max))
+ALLOCATE (Acrowns_layers (N_LAYERS))
 ALLOCATE (rold      (NIND_max))
 ALLOCATE (H         (NIND_max))
 ALLOCATE (Afoliage  (NIND_max))
 ALLOCATE (Bfoliage  (NIND_max))
 ALLOCATE (fPAR      (NIND_max))
+ALLOCATE (iPAR_base (NIND_max))
+
 ALLOCATE (Acrown    (NIND_max))
 ALLOCATE (LAIcrown  (NIND_max))
-ALLOCATE (ih        (NIND_max))
 ALLOCATE (r         (NIND_max))
-ALLOCATE (iPAR      (NIND_max))
-ALLOCATE (iPAR_base (NIND_max))
 ALLOCATE (shade     (NIND_max))
-ALLOCATE (rwidth    (NYRS,NIND_max))
-ALLOCATE (Acrowns_layers      (N_LAYERS))
 ALLOCATE (Acrowns_above       (NIND_max))
 ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
@@ -205,7 +205,7 @@ END IF
 !----------------------------------------------------------------------!
 CALL getenv('OUTPUT3',output) ! Normally 'diag.txt'.
 OPEN (23,FILE=output,STATUS='UNKNOWN')
-WRITE (23,*) '13' ! No. data columns in diag.txt
+WRITE (23,*) '14' ! No. data columns in diag.txt
 WRITE (23,*) NYRS ! No. data lines   in diag.txt
 WRITE (23,'(A123)') '&
 &JYEAR      &
@@ -220,7 +220,8 @@ WRITE (23,'(A123)') '&
 &rwidth      &
 &LAI         &
 &LAIcrown    &
-&NIND_alive'
+&NIND_alive  &  
+&NPP_ann_acc'
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -261,13 +262,30 @@ DO WHILE (ITIME < ITIMEE)
   end_of_year : IF ((MOD (ITIME, NDAY) == 0) .AND. &
                 &   (JDAY == JDENDOFM (12))) THEN
     !------------------------------------------------------------------!
+    ! New light distribution.
+    !------------------------------------------------------------------!
+    CALL light
+    !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
     CALL trees_structure
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
+    !CALL light
+!****adf
+!Afoliage_sum_save = 0.0
+do Ind = 1, 100
+!Afoliage_sum = 0.0
+!do I = 1, NIND_alive
+!  ki = living (I)
+!  Afoliage_sum = Afoliage_sum + Afoliage (KI)
+!end do
+!write (*,*) Ind,Afoliage_sum,Afoliage_sum-Afoliage_sum_save
+!Afoliage_sum_save = Afoliage_sum
+    CALL trees_structure
     CALL light
+end do
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!

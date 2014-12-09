@@ -25,7 +25,7 @@ REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
 
 ! First, calculate potential crown areas based on D and maximum
 ! potential rate of growth.
-! Crown depth constrained by iPAR.
+! Crown depth constrained by iPAR_base.
 ! Then pack them so they fit, with tallest ones having advantage if
 ! needed squeezed.
 !----------------------------------------------------------------------!
@@ -147,8 +147,7 @@ DO L = tall, short, -1
 END DO
 
 !----------------------------------------------------------------------!
-! Calculate new individual LAI, etc. given r, Acrown, and iPAR.
-write (98,*)
+! Calculate new individual LAI, etc. given r, Acrown, and iPAR_base.
 !----------------------------------------------------------------------!
 INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
@@ -159,29 +158,15 @@ INDIVIDUALS: DO I = 1, NIND_alive
   ! Stem horizontal cross-sectional area                           (m^2)
   !--------------------------------------------------------------------!
   Astem = PI * r (KI) ** 2
-  ! LAI 
-  !LAIc = LOG (0.03) / (-0.5)
-  !Ah = Astem - Acrown (KI) * LAIc / FASA
-  !write (*,*) (log(0.01)-log(0.03))/log(0.01)
-  !stop
-  !x = (LAIcrown (KI) - LOG (0.03) / (-0.5)) / LAIcrown (KI)
-  !x = (LOG (iPAR_base (KI)) - LOG (0.03)) / LOG (iPAR_base (KI))
-  !x = ((LOG(iPAR_base(KI)))/(-0.5)-(LOG(0.03))/(-0.5))/ &
-  !&   ((LOG(iPAR_base(KI)))/(-0.5))
+  ! Stem can shrink, and so heartwood needs to be kept in bounds.
+  Aheart (KI) = MIN (Astem,Aheart(KI))
   x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
-  !write (*,*) log (0.03)/(-0.5),log(0.1)/(-0.5)
-  !write (*,*) (log (0.03)/(-0.5)-log(0.1)/(-0.5)) / (log (0.03)/(-0.5))
-  !stop
+  x = MAX (0.0,x)
   ! Following not having big enough effect on overall LAI because not
   ! accounting for fact the other trees are contributing to iPAR_base.
+  ! In other words, increasing heartwood area of this tree by x cannot
+  ! control overall LAI enough.
   IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem - Aheart (KI))
-  !x = 0.2
-  !IF (iPAR_base (KI) < 0.03) Aheart (KI) = Aheart (KI) + x * (Astem &
-  !&        - Aheart (KI))
-  !Aheart (KI) = MAX (Aheart (KI), Ah)
-  !x = LAIcrown (KI) - LOG (0.03) / (-0.5)
-  !x = MAX (0.0,x)
-  !Aheart (KI) = Aheart (KI) + (x / LAIcrown (KI)) * (Astem - Aheart (KI))
   !--------------------------------------------------------------------!
   ! Stem sapwood area                                              (m^2)
   !--------------------------------------------------------------------!
@@ -212,6 +197,11 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
 END DO INDIVIDUALS
 !----------------------------------------------------------------------!
+
+! Foliage and crown areas may have changed, so re-calculate iPAR_base.
+! Then re-do structures that depend on iPAR_base, until no changes.
+! Then do fPAR.
+! No need for 'light.f90' then.
 
 !----------------------------------------------------------------------!
 END SUBROUTINE trees_structure

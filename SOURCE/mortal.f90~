@@ -33,8 +33,6 @@ LIVING_Individuals1: DO I = 1, NIND_alive
   IF (Afoliage (KI) <= 0.0) THEN
     LIVING_New (I) = 0
   END IF
-  !***adf !Just kill some to keep LAI down. !NEED TO WORK ON THIS NEXT.
-  IF (iPAR (KI) < 0.6) LIVING_New (I) = 0
   !--------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
