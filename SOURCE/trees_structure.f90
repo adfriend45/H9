@@ -21,6 +21,8 @@ IMPLICIT NONE
 INTEGER :: tall,short
 REAL :: LAIc,Astem,Asapwood
 REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
+REAL :: CL     ! Crown length   (m)
+REAL :: Vcrown ! Crown volume (m^3)
 !----------------------------------------------------------------------!
 
 ! First, calculate potential crown areas based on D and maximum
@@ -179,6 +181,21 @@ INDIVIDUALS: DO I = 1, NIND_alive
   ! Foliage area                                                   (m^2)
   !--------------------------------------------------------------------!
   Afoliage (KI) = Afol_sap
+  !--------------------------------------------------------------------!
+  ! Crown length                                                     (m)
+  !--------------------------------------------------------------------!
+  ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
+  CL = H (KI) - FLOOR (ib (KI) * DZ_CROWN_M)
+  !--------------------------------------------------------------------!
+  ! Crown volume                                                   (m^3)
+  !--------------------------------------------------------------------!
+  Vcrown = CL * Acrown (KI)
+  !--------------------------------------------------------------------!
+  ! Limit foliage area density to a sensible value given crown volume.
+  ! 10 m^2/m^3 would sensible (i.e. LAI of 10 in 1 m tall grass sward),
+  ! but to allow for extremes, use 20 m^2/m^3.
+  !--------------------------------------------------------------------!
+  Afoliage (KI) = MIN (Afoliage (KI), 20.0 * Vcrown)
   !--------------------------------------------------------------------!
   ! Foliage biomass                                             (kg[DM})
   !--------------------------------------------------------------------!

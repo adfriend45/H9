@@ -29,7 +29,7 @@ export OUTPUT3=${dir}H9/OUTPUT/diag.txt
 if [ $CUR_PATH == "/store/H9" ]; then # Looks like we are on Andrew's office Linux system.
   make H9_exec
 elif [ $CUR_PATH == "/Users/adf10/H9" ]; then # Looks like we are on Andrew's Mac.
-  gfortran *.f90 -o H9_exec -I/Users/adf10/netcdf/F90/include -L/Users/adf10/netcdf/F90/lib -lnetcdff
+  make H9_exec
 elif [ $CUR_PATH == "/Users/Waldlaeufer/projects/H9" ]; then # Tim's Mac. I can't change to make file as I have to run gfortran, I don't have ifort.
   gfortran *.f90 -o H9_exec -g -fcheck=all -Wall -I/opt/local/include -L/opt/local/lib -lnetcdff
 fi

@@ -33,6 +33,7 @@ INTEGER :: n,Ind
 INTEGER, DIMENSION (1) :: seed = (/3/)
 REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save
 INTEGER :: tall,short
+
 !----------------------------------------------------------------------!
 ! Open run control text file.
 !----------------------------------------------------------------------!
@@ -90,6 +91,8 @@ ALLOCATE (shade     (NIND_max))
 ALLOCATE (Acrowns_above       (NIND_max))
 ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
+ALLOCATE (n_L_ih (N_LAYERS))
+ALLOCATE (L_ih  (N_LAYERS,NIND_max))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -173,6 +176,7 @@ CALL light
 !----------------------------------------------------------------------!
 ! Set up trees and plot structure.
 !----------------------------------------------------------------------!
+CALL structures
 CALL trees_structure
 !----------------------------------------------------------------------!
 
@@ -268,6 +272,7 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
+    CALL structures
     CALL trees_structure
     !------------------------------------------------------------------!
     ! New light distribution.
