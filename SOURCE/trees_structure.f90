@@ -20,9 +20,13 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 INTEGER :: tall,short
 REAL :: LAIc,Astem,Asapwood
+<<<<<<< HEAD
 REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
 REAL :: CL     ! Crown length   (m)
 REAL :: Vcrown ! Crown volume (m^3)
+=======
+REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum
+>>>>>>> FETCH_HEAD
 !----------------------------------------------------------------------!
 
 ! First, calculate potential crown areas based on D and maximum
@@ -151,6 +155,7 @@ END DO
 !----------------------------------------------------------------------!
 ! Calculate new individual LAI, etc. given r, Acrown, and iPAR_base.
 !----------------------------------------------------------------------!
+Afoliage_sum = 0.0 ! For iteration control.
 INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Index of living individual                                       (n)
@@ -159,20 +164,24 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Stem horizontal cross-sectional area                           (m^2)
   !--------------------------------------------------------------------!
+  ! Foliage needs to be lost from crown until the 
+  ! lowest foliage receives iPAR=0.03, and heartwood grows
+  ! accordingly. ib varies with light a base.
   Astem = PI * r (KI) ** 2
   ! Stem can shrink, and so heartwood needs to be kept in bounds.
-  Aheart (KI) = MIN (Astem,Aheart(KI))
+  Aheart_new (KI) = MIN (Astem,Aheart(KI))
   x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
   x = MAX (0.0,x)
   ! Following not having big enough effect on overall LAI because not
   ! accounting for fact the other trees are contributing to iPAR_base.
   ! In other words, increasing heartwood area of this tree by x cannot
   ! control overall LAI enough.
-  IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem - Aheart (KI))
+  IF (x > 0.0) Aheart_new (KI) = Aheart_new (KI) + &
+  &            x * (Astem - Aheart_new (KI))
   !--------------------------------------------------------------------!
   ! Stem sapwood area                                              (m^2)
   !--------------------------------------------------------------------!
-  Asapwood = Astem - Aheart (KI)
+  Asapwood = Astem - Aheart_new (KI)
   !--------------------------------------------------------------------!
   ! Sapwood area-limited foliage area                              (m^2)
   !--------------------------------------------------------------------!
@@ -212,13 +221,10 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   !--------------------------------------------------------------------!
+  Afoliage_sum = Afoliage_sum + Afoliage (KI)
 END DO INDIVIDUALS
+LAI = Afoliage_sum / (Aplot + EPS)
 !----------------------------------------------------------------------!
-
-! Foliage and crown areas may have changed, so re-calculate iPAR_base.
-! Then re-do structures that depend on iPAR_base, until no changes.
-! Then do fPAR.
-! No need for 'light.f90' then.
 
 !----------------------------------------------------------------------!
 END SUBROUTINE trees_structure

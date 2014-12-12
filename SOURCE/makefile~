@@ -1,0 +1,23 @@
+H9_exec : H9.o grow.o structure.o trees_structure.o light.o mortal.o write_outputs.o constants.o control.o tree.o
+	ifort H9.o grow.o structure.o trees_structure.o light.o mortal.o write_outputs.o constants.o control.o tree.o -o H9_exec
+
+H9.o : H9.f90 constants.mod control.mod tree.mod
+	ifort -c H9.f90 -I/home/adf10/netcdf/F90/include -L/home/adf10/netcdf/F90/lib -lnetcdff
+grow.o : grow.f90
+	ifort -c grow.f90
+structure.o: structure.f90
+	ifort -c structure.f90
+trees_structure.o: trees_structure.f90
+	ifort -c trees_structure.f90
+light.o : light.f90
+	ifort -c light.f90
+mortal.o : mortal.f90
+	ifort -c mortal.f90
+write_outputs.o : write_outputs.f90
+	ifort -c write_outputs.f90
+constants.mod constants.o : constants.f90
+	ifort -c constants.f90
+control.mod control.o : control.f90
+	ifort -c control.f90
+tree.mod tree.o : tree.f90
+	ifort -c tree.f90

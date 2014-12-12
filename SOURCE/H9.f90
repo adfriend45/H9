@@ -29,9 +29,9 @@ CHARACTER (LEN = 100) :: driver         ! Filename for driver file.
 CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
-INTEGER :: n,Ind
+INTEGER :: n,Ind,K
 INTEGER, DIMENSION (1) :: seed = (/3/)
-REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save
+REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err,LAI_save
 INTEGER :: tall,short
 
 !----------------------------------------------------------------------!
@@ -91,8 +91,12 @@ ALLOCATE (shade     (NIND_max))
 ALLOCATE (Acrowns_above       (NIND_max))
 ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
+<<<<<<< HEAD
 ALLOCATE (n_L_ih (N_LAYERS))
 ALLOCATE (L_ih  (N_LAYERS,NIND_max))
+=======
+ALLOCATE (Aheart_new (NIND_max))
+>>>>>>> FETCH_HEAD
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -265,13 +269,15 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   end_of_year : IF ((MOD (ITIME, NDAY) == 0) .AND. &
                 &   (JDAY == JDENDOFM (12))) THEN
+    !CALL structure
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
-    CALL light
+    !CALL light
     !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
+<<<<<<< HEAD
     CALL structures
     CALL trees_structure
     !------------------------------------------------------------------!
@@ -291,6 +297,21 @@ do Ind = 1, 100
     CALL trees_structure
     CALL light
 end do
+=======
+    !CALL trees_structure
+    LAI_save = LAI
+    err = 1000.0
+    K = 1
+    ! Iteration not finding solution, and squeezing not needed in loop...
+    DO WHILE (err > 0.01)
+      CALL light
+      CALL trees_structure
+      err = ABS (LAI_save - LAI)
+      write (*,*) err,LAI,LAI_save
+      LAI_save = LAI
+    END DO
+    Aheart (:) = Aheart_new (:)
+>>>>>>> FETCH_HEAD
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!
