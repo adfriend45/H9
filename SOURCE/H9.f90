@@ -29,9 +29,9 @@ CHARACTER (LEN = 100) :: driver         ! Filename for driver file.
 CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
-INTEGER :: n,Ind
+INTEGER :: n,Ind,K
 INTEGER, DIMENSION (1) :: seed = (/3/)
-REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err
+REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err,LAI_save
 INTEGER :: tall,short
 !----------------------------------------------------------------------!
 ! Open run control text file.
@@ -164,8 +164,6 @@ DO I = 1, NIND_max
   NIND_alive = NIND_alive + 1
 END DO
 
-CALL structure
-
 !----------------------------------------------------------------------!
 ! Set up plot light profile.
 !----------------------------------------------------------------------!
@@ -263,18 +261,25 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   end_of_year : IF ((MOD (ITIME, NDAY) == 0) .AND. &
                 &   (JDAY == JDENDOFM (12))) THEN
+    !CALL structure
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
-    CALL light
+    !CALL light
     !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
-    CALL trees_structure
-    !------------------------------------------------------------------!
-    ! New light distribution.
-    !------------------------------------------------------------------!
-    CALL light
+    !CALL trees_structure
+    LAI_save = LAI
+    err = 1000.0
+    K = 1
+    DO WHILE (err > 0.01)
+      CALL light
+      CALL trees_structure
+      err = ABS (LAI_save - LAI)
+      write (*,*) K,LAI,err
+      LAI_save = LAI
+    END DO
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!

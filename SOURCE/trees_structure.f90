@@ -20,7 +20,7 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 INTEGER :: tall,short
 REAL :: LAIc,Astem,Asapwood
-REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
+REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum
 !----------------------------------------------------------------------!
 
 ! First, calculate potential crown areas based on D and maximum
@@ -149,6 +149,7 @@ END DO
 !----------------------------------------------------------------------!
 ! Calculate new individual LAI, etc. given r, Acrown, and iPAR_base.
 !----------------------------------------------------------------------!
+Afoliage_sum = 0.0 ! For iteration control.
 INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Index of living individual                                       (n)
@@ -167,6 +168,8 @@ INDIVIDUALS: DO I = 1, NIND_alive
   ! In other words, increasing heartwood area of this tree by x cannot
   ! control overall LAI enough.
   IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem - Aheart (KI))
+  Aheart (KI) = x !****adf
+  Aheart (KI) = Astem - Acrown (KI) * LOG (0.03/iPAR(KI)) / (kext * FASA)
   !--------------------------------------------------------------------!
   ! Stem sapwood area                                              (m^2)
   !--------------------------------------------------------------------!
@@ -195,13 +198,10 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   LAIcrown (KI) = Afoliage (KI) / (Acrown (KI) + EPS)
   !--------------------------------------------------------------------!
+  Afoliage_sum = Afoliage_sum + Afoliage (KI)
 END DO INDIVIDUALS
+LAI = Afoliage_sum / (Aplot + EPS)
 !----------------------------------------------------------------------!
-
-! Foliage and crown areas may have changed, so re-calculate iPAR_base.
-! Then re-do structures that depend on iPAR_base, until no changes.
-! Then do fPAR.
-! No need for 'light.f90' then.
 
 !----------------------------------------------------------------------!
 END SUBROUTINE trees_structure

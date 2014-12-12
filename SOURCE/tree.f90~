@@ -23,7 +23,6 @@ REAL   , ALLOCATABLE :: H              (:) ! Stem height             (m)
 REAL   , ALLOCATABLE :: Afoliage       (:) ! Foliage area          (m^2)
 REAL   , ALLOCATABLE :: Bfoliage       (:) ! Foliage biomass    (kg[DM])
 REAL   , ALLOCATABLE :: fPAR           (:) ! fPAR for each tree   (frac)
-REAL   , ALLOCATABLE :: iPAR           (:) ! Rel PAR, top crown   (frac)
 
 REAL, ALLOCATABLE :: iPAR_base (:) ! Relative PAR at bottom of crown (fraction)
 REAL, ALLOCATABLE :: shade (:) ! Fraction of crown being shaded by higher trees
@@ -33,6 +32,7 @@ REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: Afoliage_above_base (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
+REAL, ALLOCATABLE :: Astem (:) ! Stem horizontal cross-sectional area (m^2)
 !TTR record the area shaded for each tree for visulisation
 !----------------------------------------------------------------------!
 ! Internal intermediate variables.
