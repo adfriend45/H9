@@ -120,11 +120,19 @@ DO L = tall, short, -1
       Acrown (KI) = Acrown (KI) - lose
       Acrowns_layers (ib(KI)+1:ih(KI)) = &
       &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
+      ! Presumably could look at light profile here. Allow for
+      ! different kext of each tree.
     END DO
     !------------------------------------------------------------------!
     STOP
   END IF
 !  next do a limit on leaf area density and cumulate leaf area downwards, !and cal. ipar and ipar_base values for each tree...
+! could we use the actual D increment to calculate how each should
+! change?
+! use mean kext in each layer to calculate light profile, try and do so
+! if only one tree very simple! otherwise need to step down through
+! canopy, in each layer check each tree can keep its leaf area. Seems
+! only way!
 END DO
 ! Clean up.
 n_L_ih (:)   = 0
