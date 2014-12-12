@@ -31,7 +31,7 @@ CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER, ALLOCATABLE :: seed (:)
 INTEGER :: n,Ind
 INTEGER, DIMENSION (1) :: seed = (/3/)
-REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save
+REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err
 INTEGER :: tall,short
 !----------------------------------------------------------------------!
 ! Open run control text file.
@@ -164,6 +164,8 @@ DO I = 1, NIND_max
   NIND_alive = NIND_alive + 1
 END DO
 
+CALL structure
+
 !----------------------------------------------------------------------!
 ! Set up plot light profile.
 !----------------------------------------------------------------------!
@@ -272,20 +274,7 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
-    !CALL light
-!****adf
-!Afoliage_sum_save = 0.0
-do Ind = 1, 100
-!Afoliage_sum = 0.0
-!do I = 1, NIND_alive
-!  ki = living (I)
-!  Afoliage_sum = Afoliage_sum + Afoliage (KI)
-!end do
-!write (*,*) Ind,Afoliage_sum,Afoliage_sum-Afoliage_sum_save
-!Afoliage_sum_save = Afoliage_sum
-    CALL trees_structure
     CALL light
-end do
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!

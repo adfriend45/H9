@@ -1,0 +1,3 @@
+SUBROUTINE structure
+IMPLICIT NONE
+END SUBROUTINE structure
