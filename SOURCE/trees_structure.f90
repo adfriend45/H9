@@ -158,22 +158,24 @@ INDIVIDUALS: DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Stem horizontal cross-sectional area                           (m^2)
   !--------------------------------------------------------------------!
+  ! Foliage needs to be lost from crown until the 
+  ! lowest foliage receives iPAR=0.03, and heartwood grows
+  ! accordingly. ib varies with light a base.
   Astem = PI * r (KI) ** 2
   ! Stem can shrink, and so heartwood needs to be kept in bounds.
-  Aheart (KI) = MIN (Astem,Aheart(KI))
+  Aheart_new (KI) = MIN (Astem,Aheart(KI))
   x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
   x = MAX (0.0,x)
   ! Following not having big enough effect on overall LAI because not
   ! accounting for fact the other trees are contributing to iPAR_base.
   ! In other words, increasing heartwood area of this tree by x cannot
   ! control overall LAI enough.
-  IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem - Aheart (KI))
-  Aheart (KI) = x !****adf
-  Aheart (KI) = Astem - Acrown (KI) * LOG (0.03/iPAR(KI)) / (kext * FASA)
+  IF (x > 0.0) Aheart_new (KI) = Aheart_new (KI) + &
+  &            x * (Astem - Aheart_new (KI))
   !--------------------------------------------------------------------!
   ! Stem sapwood area                                              (m^2)
   !--------------------------------------------------------------------!
-  Asapwood = Astem - Aheart (KI)
+  Asapwood = Astem - Aheart_new (KI)
   !--------------------------------------------------------------------!
   ! Sapwood area-limited foliage area                              (m^2)
   !--------------------------------------------------------------------!

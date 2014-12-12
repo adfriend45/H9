@@ -90,6 +90,7 @@ ALLOCATE (shade     (NIND_max))
 ALLOCATE (Acrowns_above       (NIND_max))
 ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
+ALLOCATE (Aheart_new (NIND_max))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -273,13 +274,15 @@ DO WHILE (ITIME < ITIMEE)
     LAI_save = LAI
     err = 1000.0
     K = 1
-    DO WHILE (err > 0.1)
+    ! Iteration not finding solution, and squeezing not needed in loop...
+    DO WHILE (err > 0.01)
       CALL light
       CALL trees_structure
       err = ABS (LAI_save - LAI)
-      write (*,*) K,LAI,err
+      write (*,*) err,LAI,LAI_save
       LAI_save = LAI
     END DO
+    Aheart (:) = Aheart_new (:)
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!

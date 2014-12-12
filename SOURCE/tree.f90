@@ -32,6 +32,7 @@ REAL, ALLOCATABLE :: Acrowns_above (:)
 REAL, ALLOCATABLE :: Afoliage_above (:)
 REAL, ALLOCATABLE :: Afoliage_above_base (:)
 REAL, ALLOCATABLE :: r (:)        ! Stem radius                      (m)
+REAL, ALLOCATABLE :: Aheart_new (:)        ! 
 !TTR record the area shaded for each tree for visulisation
 !----------------------------------------------------------------------!
 ! Internal intermediate variables.
