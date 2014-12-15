@@ -60,6 +60,8 @@ Afoliage_sum = 0.0
 DO I = 1, NIND_alive
   KI = LIVING (I)
   IF (Acrown (KI) > EPS) THEN
+    ! Need to move this up and make sure Aheart is kept to its initial
+    ! value at the start of each iteration.
     Astem = pi * r (KI) ** 2
     Aheart (KI) = MIN (Aheart (KI), Astem) ! In case of shrinkage.
     Asapwood = (LAIcrown_want (KI) * Acrown (KI)) / FASA
