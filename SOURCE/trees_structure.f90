@@ -20,13 +20,9 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 INTEGER :: tall,short
 REAL :: LAIc,Astem,Asapwood
-<<<<<<< HEAD
-REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x
+REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum
 REAL :: CL     ! Crown length   (m)
 REAL :: Vcrown ! Crown volume (m^3)
-=======
-REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum
->>>>>>> FETCH_HEAD
 !----------------------------------------------------------------------!
 
 ! First, calculate potential crown areas based on D and maximum

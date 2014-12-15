@@ -12,7 +12,7 @@ PROGRAM H9
 !----------------------------------------------------------------------!
 ! Authors            : Andrew D. Friend, Tim T. Rademacher
 ! Date started       : 18th July, 2014
-! Date last modified : 9th December, 2014
+! Date last modified : 12th December, 2014
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -91,12 +91,9 @@ ALLOCATE (shade     (NIND_max))
 ALLOCATE (Acrowns_above       (NIND_max))
 ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
-<<<<<<< HEAD
-ALLOCATE (n_L_ih (N_LAYERS))
-ALLOCATE (L_ih  (N_LAYERS,NIND_max))
-=======
-ALLOCATE (Aheart_new (NIND_max))
->>>>>>> FETCH_HEAD
+ALLOCATE (Aheart_new          (NIND_max))
+ALLOCATE (iPAR                (NIND_max))
+ALLOCATE (LAIcrown_want       (NIND_max))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -171,17 +168,20 @@ DO I = 1, NIND_max
   NIND_alive = NIND_alive + 1
 END DO
 
+!------------------------------------------------------------------!
+! Compute canopy structure.
+!------------------------------------------------------------------!
+CALL structures
 !----------------------------------------------------------------------!
 ! Set up plot light profile.
 !----------------------------------------------------------------------!
-CALL light
+!CALL light
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
 ! Set up trees and plot structure.
 !----------------------------------------------------------------------!
-CALL structures
-CALL trees_structure
+!CALL trees_structure
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -269,7 +269,10 @@ DO WHILE (ITIME < ITIMEE)
   !--------------------------------------------------------------------!
   end_of_year : IF ((MOD (ITIME, NDAY) == 0) .AND. &
                 &   (JDAY == JDENDOFM (12))) THEN
-    !CALL structure
+    !------------------------------------------------------------------!
+    ! Compute new canopy structure.
+    !------------------------------------------------------------------!
+    CALL structures
     !------------------------------------------------------------------!
     ! New light distribution.
     !------------------------------------------------------------------!
@@ -277,41 +280,7 @@ DO WHILE (ITIME < ITIMEE)
     !------------------------------------------------------------------!
     ! New canopy and tree structures based on growth, space, and light.
     !------------------------------------------------------------------!
-<<<<<<< HEAD
-    CALL structures
-    CALL trees_structure
-    !------------------------------------------------------------------!
-    ! New light distribution.
-    !------------------------------------------------------------------!
-    !CALL light
-!****adf
-!Afoliage_sum_save = 0.0
-do Ind = 1, 100
-!Afoliage_sum = 0.0
-!do I = 1, NIND_alive
-!  ki = living (I)
-!  Afoliage_sum = Afoliage_sum + Afoliage (KI)
-!end do
-!write (*,*) Ind,Afoliage_sum,Afoliage_sum-Afoliage_sum_save
-!Afoliage_sum_save = Afoliage_sum
-    CALL trees_structure
-    CALL light
-end do
-=======
     !CALL trees_structure
-    LAI_save = LAI
-    err = 1000.0
-    K = 1
-    ! Iteration not finding solution, and squeezing not needed in loop...
-    DO WHILE (err > 0.01)
-      CALL light
-      CALL trees_structure
-      err = ABS (LAI_save - LAI)
-      write (*,*) err,LAI,LAI_save
-      LAI_save = LAI
-    END DO
-    Aheart (:) = Aheart_new (:)
->>>>>>> FETCH_HEAD
     !------------------------------------------------------------------!
     ! Kill trees with no foliage area.
     !------------------------------------------------------------------!
@@ -342,7 +311,7 @@ end do
     LAI = Afoliage_sum / (Aplot + EPS)
     !------------------------------------------------------------------!
     CALL write_outputs
-    write (20,*) NIND_alive
+    write (20,*) JYEAR,NIND_alive
     !------------------------------------------------------------------!
     ! Reset plot NPP diagnostic                             (kgC/m^2/yr)
     !------------------------------------------------------------------!
