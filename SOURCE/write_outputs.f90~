@@ -34,7 +34,7 @@ END DO individuals
 8001 format (6F15.7)
 
 !KI = LIVING (1)
-KI = 31
+KI = 1
 ! Normally 'output_ann.txt'.
 WRITE (21, 8002) JYEAR, &
 &  NIND_alive                    , &

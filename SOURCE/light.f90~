@@ -6,13 +6,18 @@ SUBROUTINE light
 ! incident on the plot that is absorbed by the individual. Hence:
 ! PAR absorbed by individual = fPAR * PAR incident on plot.
 !----------------------------------------------------------------------!
+
 USE CONSTANTS
 USE CONTROL
 USE TREE
+
 !----------------------------------------------------------------------!
 IMPLICIT NONE
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
 INTEGER :: KJ
-REAL :: LAI_above,space,frac,LAI_above_base,iPAR
+REAL :: LAI_above,space,frac,LAI_above_base
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -22,6 +27,7 @@ Acrowns_above  (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
 individuals_areas_above : DO I = 1, NIND_alive
+  !--------------------------------------------------------------------!
   KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Include own leaf area for light at base of crown.
@@ -97,7 +103,7 @@ individuals_areas_above : DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! Mean iPAR at top of tree                                  (fraction)
   !--------------------------------------------------------------------!
-  iPAR = (1.0 - shade (KI)) + shade (KI) * EXP (kext * LAI_above)
+  iPAR (KI) = (1.0 - shade (KI)) + shade (KI) * EXP (kext * LAI_above)
   !--------------------------------------------------------------------!
   ! Mean LAI of canopies above base of tree                    (m^2/m^2)
   !--------------------------------------------------------------------!
@@ -109,8 +115,8 @@ individuals_areas_above : DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   ! fPAR of tree                                              (fraction)
   !--------------------------------------------------------------------!
-  fPAR (KI) = iPAR * (1.0 - EXP (kext * LAIcrown (KI)))
-  write (*,*) KI,iPAR , 1.0 , , LAIcrown (KI)
+  fPAR (KI) = iPAR (KI) * (1.0 - EXP (kext * LAIcrown (KI)))
+  if (KI == 1) write (*,*) KI,ib(KI),iPAR_base(KI)
   !--------------------------------------------------------------------!
 END DO individuals_areas_above ! I = 1, NIND_alive
 !----------------------------------------------------------------------!

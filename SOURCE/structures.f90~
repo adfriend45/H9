@@ -31,7 +31,7 @@ CALL squeeze
 lim = 10.0
 LAI_save = 0.0
 !DO WHILE (lim > 0.01)
-DO WHILE (lim > 1.0)
+DO WHILE (lim > 0.1)
 
   !-------------------------------------------------------------------!
   ! Compute fPAR, iPAR, and iPAR_base.

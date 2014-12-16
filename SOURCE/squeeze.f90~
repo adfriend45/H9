@@ -88,6 +88,8 @@ DO L = tall, short, -1
   ! foliage area after squeezing.
   !--------------------------------------------------------------------!
   over_area : IF (Acrowns_layers (L) > (Aplot+0.01)) THEN
+    write (*,*)
+    write (*,*) L,Acrowns_layers(L)
     !------------------------------------------------------------------!
     ! flap is the ratio of excess crown area to additional crown area
     ! added when going from layer above to this one. Excess must be due
@@ -97,6 +99,8 @@ DO L = tall, short, -1
     flap = (Acrowns_layers (L) - Aplot)                 / &
     &      (Acrowns_layers (L) - Acrowns_layers (L+1))
     flap = MIN (1.0,flap)
+    write (*,*) Acrowns_layers (L) , Acrowns_layers (L+1)
+    write (*,*) 'flap=',flap,NIND_alive
     !------------------------------------------------------------------!
     DO I = 1, NIND_alive
       !----------------------------------------------------------------!
@@ -105,15 +109,20 @@ DO L = tall, short, -1
       KI = LIVING (I)
       !----------------------------------------------------------------!
       tree_top : IF (L == ih (KI)) THEN
+        write (*,*) ih(KI)
         !--------------------------------------------------------------!
         ! Crown area to lose from this individual                  (m^2)
         !--------------------------------------------------------------!
         lose = flap * Acrown (KI)
+        write (*,*) Acrown(KI),lose,Acrown(KI)-lose
         if (lose < 0.0) stop
         !--------------------------------------------------------------!
         ! Remove this crown area                                   (m^2)
         !--------------------------------------------------------------!
         Acrown (KI) = Acrown (KI) - lose
+        write (*,*) Acrown(KI)
+        write (*,*) Acrowns_layers(ih(KI)),Acrowns_layers(ih(KI))-&
+        &           lose
         if (Acrown (KI) < 0.0) stop
         !--------------------------------------------------------------!
         ! Adjust canopy profile due to change in crown area.
@@ -124,6 +133,8 @@ DO L = tall, short, -1
       END IF tree_top
       !----------------------------------------------------------------!
     END DO
+    write (*,*) L,Acrowns_layers(L),EPS
+    !if (Acrowns_layers(L)>Aplot) stop
     !------------------------------------------------------------------!
   END IF over_area
   !--------------------------------------------------------------------!

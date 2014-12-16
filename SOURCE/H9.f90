@@ -19,7 +19,7 @@ PROGRAM H9
 USE CONSTANTS
 USE CONTROL
 USE TREE
-USE NETCDF
+!USE NETCDF
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -93,7 +93,7 @@ ALLOCATE (Afoliage_above      (NIND_max))
 ALLOCATE (Afoliage_above_base (NIND_max))
 ALLOCATE (Aheart_new          (NIND_max))
 ALLOCATE (iPAR                (NIND_max))
-ALLOCATE (LAIcrown_want       (NIND_max))
+ALLOCATE (Afoliage_want       (NIND_max))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!

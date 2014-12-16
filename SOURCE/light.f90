@@ -6,11 +6,16 @@ SUBROUTINE light
 ! incident on the plot that is absorbed by the individual. Hence:
 ! PAR absorbed by individual = fPAR * PAR incident on plot.
 !----------------------------------------------------------------------!
+
 USE CONSTANTS
 USE CONTROL
 USE TREE
+
 !----------------------------------------------------------------------!
 IMPLICIT NONE
+!----------------------------------------------------------------------!
+
+!----------------------------------------------------------------------!
 INTEGER :: KJ
 REAL :: LAI_above,space,frac,LAI_above_base
 !----------------------------------------------------------------------!
@@ -22,6 +27,7 @@ Acrowns_above  (:) = 0.0
 Afoliage_above (:) = 0.0
 !----------------------------------------------------------------------!
 individuals_areas_above : DO I = 1, NIND_alive
+  !--------------------------------------------------------------------!
   KI = LIVING (I)
   !--------------------------------------------------------------------!
   ! Include own leaf area for light at base of crown.
