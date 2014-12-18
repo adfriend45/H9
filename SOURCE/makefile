@@ -22,4 +22,8 @@ constants.mod constants.o : constants.f90
 control.mod control.o : control.f90
 	gfortran -c control.f90
 tree.mod tree.o : tree.f90
+<<<<<<< Updated upstream
 	gfortran -c tree.f90
+=======
+	ifort -c tree.f90
+>>>>>>> Stashed changes

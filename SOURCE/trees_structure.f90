@@ -19,8 +19,8 @@ IMPLICIT NONE
 
 !----------------------------------------------------------------------!
 INTEGER :: tall,short
-REAL :: LAIc,Astem,Asapwood
-REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum
+REAL :: LAIc,Astem,Asapwood ! TTR LAIc is not used
+REAL :: Afol_sap,Afol_iPAR,flap,lose,dDcrown,BCR,Ah,x,Afoliage_sum ! TTR Afol_iPAR and Ah are not being used currently
 REAL :: CL     ! Crown length   (m)
 REAL :: Vcrown ! Crown volume (m^3)
 !----------------------------------------------------------------------!
