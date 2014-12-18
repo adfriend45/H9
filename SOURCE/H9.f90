@@ -30,8 +30,8 @@ CHARACTER (LEN = 100) :: output         ! Filename for output file.
 !INTEGER :: size
 !INTEGER, ALLOCATABLE :: seed (:)
 INTEGER :: n,Ind,K
-INTEGER, DIMENSION (1) :: seed = (/3/)
-REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err,LAI_save
+! INTEGER, DIMENSION (1) :: seed = (/3/) !TTR Unused variable
+REAL :: Asapwood,Afoliage_sum,Afoliage_sum_save,err,LAI_save !TTR again are the last three variables actually used?
 INTEGER :: tall,short
 
 !----------------------------------------------------------------------!
