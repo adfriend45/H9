@@ -40,13 +40,14 @@ DO WHILE (lim > 0.01) ! Limit is on fractional change in mean ib.
   !-------------------------------------------------------------------!
 
   !-------------------------------------------------------------------!
-  ! Compute potential crown Afoliages based on iPAR.
+  ! Compute potential crown Afoliages based on iPAR_base and Vcrown.
   !-------------------------------------------------------------------!
   DO I = 1, NIND_alive
     KI = LIVING (I)
     IF (Acrown (KI) > EPS) THEN
-      Afoliage_want (KI) = Acrown (KI) * LOG (0.03 / iPAR (KI) + &
-      &                    EPS) / kext
+      LAI_above_base = LOG (iPAR_base (KI)) / kext
+      Afoliage_want (KI) = Aplot * (LOG (0.03) / kext - &
+      &                    LAI_above_base) + Afoliage (KI)
       !---------------------------------------------------------------!
     END IF
   END DO

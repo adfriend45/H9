@@ -1,8 +1,7 @@
 !======================================================================!
-SUBROUTINE squeeze
+SUBROUTINE structure
 !----------------------------------------------------------------------!
-! Compute new height and crown areas, squeezing if necessary to fit in
-! plot.
+! Re-make of combined light + trees_structure.
 !----------------------------------------------------------------------!
 
 USE CONSTANTS
@@ -14,12 +13,8 @@ IMPLICIT NONE
 !----------------------------------------------------------------------!
 
 INTEGER :: short,tall
-REAL :: flap,lose
+REAL    :: flap,lose,Asap,BRC,x
 
-!----------------------------------------------------------------------!
-! First, calculate potential crown areas based on D's.
-! Then pack them so they fit, with tallest ones having advantage if
-! needed squeezed.
 !----------------------------------------------------------------------!
 ! Sum of crown areas in each layer                                 (m^2)
 !----------------------------------------------------------------------!
@@ -37,26 +32,25 @@ DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   r (KI) = (V / (( FORMF / 3.0) * PI * alpha)) ** (1.0 / (2.0 + beta))
   !--------------------------------------------------------------------!
+  ! Stem horizontal cross-sectional area                           (m^2)
+  !--------------------------------------------------------------------!
+  Astem (KI) = PI * r (KI) ** 2
+  !--------------------------------------------------------------------!
+  ! Stem can shrink, and so heartwood needs to be kept in bounds   (m^2)
+  !--------------------------------------------------------------------!
+  Aheart (KI) = MIN (Astem(KI),Aheart(KI))
+  !--------------------------------------------------------------------!
   ! Stem length above ground (i.e. height)                           (m)
   !--------------------------------------------------------------------!
   H (KI) = alpha * r (KI) ** beta
-  H (KI) = MIN (H(KI),FLOAT(H_MAX)) ! Keep in bounds!
   !--------------------------------------------------------------------!
   ! Height in canopy depth units                            (DZ_CROWN_M)
   !--------------------------------------------------------------------!
   ih (KI) = CEILING (H (KI) / DZ_CROWN_M)
   !--------------------------------------------------------------------!
-  ! Stem diameter                                                    (m)
+  ! Potential crown area                                             (m)
   !--------------------------------------------------------------------!
-  D = 2.0 * r (KI)
-  !--------------------------------------------------------------------!
-  ! Crown diameter                                                   (m)
-  !--------------------------------------------------------------------!
-  Dcrown = b_cd * D
-  !--------------------------------------------------------------------!
-  ! Potential crown area (m^2)
-  !--------------------------------------------------------------------!
-  Acrown (KI) = PI * (Dcrown / 2.0) ** 2
+  Acrown (KI) = PI * (b_cd * r (KI)) ** 2
   !--------------------------------------------------------------------!
   ! Add crown area to the layers it covers                         (m^2)
   !--------------------------------------------------------------------!
@@ -67,58 +61,54 @@ END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Now reduce all crown areas if necessary to fit horizontally at a
-! give vertical level.
-!----------------------------------------------------------------------!
-
-!----------------------------------------------------------------------!
-! Heights of tallest and shortest trees in plot               (DZ_CROWN)
+! Heights of tallest and shortest trees in plot (DZ_CROWN).
 !----------------------------------------------------------------------!
 tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
 short = MINVAL (ih(LIVING(1:NIND_alive)))
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Loop down through plot.
-!----------------------------------------------------------------------!
-DO L = tall, short, -1
-  !--------------------------------------------------------------------!
-  ! Test if sum of crown layers at this level is too large for plot.
-  ! Offset because rounding error results in (slightly) too much
-  ! foliage area after squeezing.
-  ! Not working yet as really need to look at all trees at once.
-  ! Start where most overlap occurs?
-  !--------------------------------------------------------------------!
-  over_area : IF (Acrowns_layers (L) > (Aplot+0.01)) THEN
-    !------------------------------------------------------------------!
-    ! flap is ..................                                 (ratio)
-    !------------------------------------------------------------------!
-    flap = (Acrowns_layers (L) - Aplot) / Acrowns_layers (L)
-    !------------------------------------------------------------------!
-    DO I = 1, NIND_alive
-      !----------------------------------------------------------------!
-      ! Index of living individual                                   (n)
-      !----------------------------------------------------------------!
-      KI = LIVING (I)
-      !----------------------------------------------------------------!
-      IF ((L <= ih (KI)) .AND. (L >= ib (KI))) THEN
-        !--------------------------------------------------------------!
-        lose = flap * Acrown (KI)
-        !--------------------------------------------------------------!
-        Acrown (KI) = Acrown (KI) - lose
-        !--------------------------------------------------------------!
-        ! Adjust canopy profile due to change in crown area.
-        !--------------------------------------------------------------!
-        Acrowns_layers (ib(KI)+1:ih(KI)) = &
-        &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
-        !--------------------------------------------------------------!
-      END IF
-      !----------------------------------------------------------------!
-    END DO
-  END IF over_area
-  !--------------------------------------------------------------------!
-END DO
+! Now squeeze crown areas if necessary to fit in plot. Taller trees
+! take priority (i.e. they are not squeezed if their tops have enough
+! space).
 !----------------------------------------------------------------------!
 
-END SUBROUTINE squeeze
+DO L = tall, short, -1
+  IF (Acrowns_layers (L) > Aplot) THEN
+    flap = (Acrowns_layers (L) - Aplot) / &
+    &      (Acrowns_layers (L) - Acrowns_layers (L+1))
+    DO I = 1, NIND_alive
+      KI = LIVING (I)
+      IF (L == ih (KI)) THEN
+        lose = flap * Acrown (KI)
+        Acrown (KI) = Acrown (KI) - lose
+        Acrowns_layers (ib(KI)+1:ih(KI)) =       &
+        &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
+      END IF
+    END DO
+  END IF
+END DO
+
+! I think we have to iterate until the canopy does not change.
+! Keep the light.f90 routine as this seems efficient.
+! ib changing will change acrowns_layers...so maybe just keep as before
+! but iterate!
+DO J = 1, 10
+DO I = 1, NIND_alive
+  KI = LIVING (I)
+  Asap = Astem (KI) - Aheart (KI)
+  Afoliage (KI) = FASA * Asap
+END DO
+CALL light
+DO I = 1, NIND_alive
+  KI = LIVING (I)
+  x = ((LOG(iPAR_base(KI)))-(LOG(0.03)))/((LOG(iPAR_base(KI))))
+  x = MAX (0.0,x)
+  IF (x > 0.0) Aheart (KI) = Aheart (KI) + x * (Astem (KI) - Aheart (KI))
+  BRC = BRC_limit * (1.0 - iPAR_base (KI))
+  ib (KI) = NINT (FLOAT (ih (KI)) * BRC)
+END DO
+END DO
+!----------------------------------------------------------------------!
+END SUBROUTINE structure
 !======================================================================!

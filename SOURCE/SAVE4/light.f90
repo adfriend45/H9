@@ -81,7 +81,7 @@ individuals_areas_above : DO I = 1, NIND_alive
   !--------------------------------------------------------------------!
   space = MAX (0.0, Aplot - Acrowns_above (KI))
   !--------------------------------------------------------------------!
-  ! Fraction of crown shaded                                  (fraction)
+  ! Fraction of crown shaded (fraction).
   !--------------------------------------------------------------------!
   shade_fraction: IF (Acrown (KI) <= space) THEN
     !------------------------------------------------------------------!

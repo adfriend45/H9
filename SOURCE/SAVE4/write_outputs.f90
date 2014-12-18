@@ -34,7 +34,7 @@ END DO individuals
 8001 format (6F15.7)
 
 !KI = LIVING (1)
-KI = 1
+KI = 62
 ! Normally 'output_ann.txt'.
 WRITE (21, 8002) JYEAR, &
 &  NIND_alive                    , &
@@ -64,7 +64,7 @@ WRITE (23,8003) JYEAR                   , & ! 0
 &               LAIcrown (KI)                 , & ! 11
 &               NIND_alive                    , & ! 12
 &               NPP_ann_acc                       ! 13
-8003 FORMAT (I5,11F13.4,I10,F12.4)
+8003 FORMAT (I5,11F12.4,I10,F12.4)
 
 !---------------------------------------------------------------------!
 END SUBROUTINE write_outputs

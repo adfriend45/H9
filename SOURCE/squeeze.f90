@@ -13,7 +13,7 @@ USE TREE
 IMPLICIT NONE
 !----------------------------------------------------------------------!
 
-INTEGER :: tall,short
+INTEGER :: short,tall
 REAL :: flap,lose
 
 !----------------------------------------------------------------------!
@@ -67,9 +67,8 @@ END DO
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
-! Now go down through plot and reduce crown areas if necessary to fit
-! horizontally. Restrict range to analyse to the range of tree heights
-! as only look at top of each crown for area test.
+! Now reduce all crown areas if necessary to fit horizontally at a
+! give vertical level.
 !----------------------------------------------------------------------!
 
 !----------------------------------------------------------------------!
@@ -78,7 +77,7 @@ END DO
 tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
 short = MINVAL (ih(LIVING(1:NIND_alive)))
 !----------------------------------------------------------------------!
-write (*,*)
+
 !----------------------------------------------------------------------!
 ! Loop down through plot.
 !----------------------------------------------------------------------!
@@ -87,52 +86,39 @@ DO L = tall, short, -1
   ! Test if sum of crown layers at this level is too large for plot.
   ! Offset because rounding error results in (slightly) too much
   ! foliage area after squeezing.
+  ! Not working yet as really need to look at all trees at once.
+  ! Start where most overlap occurs?
+  ! NEED TO FIX UP HERE...!***ADF
   !--------------------------------------------------------------------!
   over_area : IF (Acrowns_layers (L) > (Aplot+0.01)) THEN
-    write (*,*) L,'squeezing'
     !------------------------------------------------------------------!
-    ! flap is the ratio of excess crown area to additional crown area
-    ! added when going from layer above to this one. Excess must be due
-    ! to the addition of one or more trees as their heights extend to
-    ! this level.
+    ! flap is ..................                                 (ratio)
     !------------------------------------------------------------------!
-    flap = (Acrowns_layers (L) - Aplot)                 / &
-    &      (Acrowns_layers (L) - Acrowns_layers (L+1))
-    flap = MIN (1.0,flap)
+    flap = (Acrowns_layers (L) - Aplot) / Acrowns_layers (L)
     !------------------------------------------------------------------!
     DO I = 1, NIND_alive
       !----------------------------------------------------------------!
       ! Index of living individual                                   (n)
       !----------------------------------------------------------------!
       KI = LIVING (I)
-      write (*,*) 'Afoliage',KI,Afoliage(KI),Acrown(KI),H(KI)
       !----------------------------------------------------------------!
-      tree_top : IF (L == ih (KI)) THEN
-        !--------------------------------------------------------------!
-        ! Crown area to lose from this individual                  (m^2)
+      IF ((L <= ih (KI)) .AND. (L >= ib (KI))) THEN
         !--------------------------------------------------------------!
         lose = flap * Acrown (KI)
-        if (lose < 0.0) stop 'lose < 0 in squeeze'
-        !--------------------------------------------------------------!
-        ! Remove this crown area                                   (m^2)
         !--------------------------------------------------------------!
         Acrown (KI) = Acrown (KI) - lose
-        if (Acrown (KI) < 0.0) stop
-      write (*,*) 'Afoliage',KI,Afoliage(KI),Acrown(KI),H(KI)
         !--------------------------------------------------------------!
         ! Adjust canopy profile due to change in crown area.
         !--------------------------------------------------------------!
         Acrowns_layers (ib(KI)+1:ih(KI)) = &
         &  Acrowns_layers (ib(KI)+1:ih(KI)) - lose
         !--------------------------------------------------------------!
-      END IF tree_top
+      END IF
       !----------------------------------------------------------------!
     END DO
-    !------------------------------------------------------------------!
   END IF over_area
   !--------------------------------------------------------------------!
 END DO
-write (*,*)
 !----------------------------------------------------------------------!
 
 END SUBROUTINE squeeze
