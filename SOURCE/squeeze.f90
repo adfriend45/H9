@@ -40,6 +40,7 @@ DO I = 1, NIND_alive
   ! Stem length above ground (i.e. height)                           (m)
   !--------------------------------------------------------------------!
   H (KI) = alpha * r (KI) ** beta
+  H (KI) = MIN (H(KI),FLOAT(H_MAX)) ! Keep in bounds!
   !--------------------------------------------------------------------!
   ! Height in canopy depth units                            (DZ_CROWN_M)
   !--------------------------------------------------------------------!
@@ -77,7 +78,7 @@ END DO
 tall  = MAXVAL (ih(LIVING(1:NIND_alive)))
 short = MINVAL (ih(LIVING(1:NIND_alive)))
 !----------------------------------------------------------------------!
-
+write (*,*)
 !----------------------------------------------------------------------!
 ! Loop down through plot.
 !----------------------------------------------------------------------!
@@ -88,6 +89,7 @@ DO L = tall, short, -1
   ! foliage area after squeezing.
   !--------------------------------------------------------------------!
   over_area : IF (Acrowns_layers (L) > (Aplot+0.01)) THEN
+    write (*,*) L,'squeezing'
     !------------------------------------------------------------------!
     ! flap is the ratio of excess crown area to additional crown area
     ! added when going from layer above to this one. Excess must be due
@@ -103,18 +105,20 @@ DO L = tall, short, -1
       ! Index of living individual                                   (n)
       !----------------------------------------------------------------!
       KI = LIVING (I)
+      write (*,*) 'Afoliage',KI,Afoliage(KI),Acrown(KI),H(KI)
       !----------------------------------------------------------------!
       tree_top : IF (L == ih (KI)) THEN
         !--------------------------------------------------------------!
         ! Crown area to lose from this individual                  (m^2)
         !--------------------------------------------------------------!
         lose = flap * Acrown (KI)
-        if (lose < 0.0) stop
+        if (lose < 0.0) stop 'lose < 0 in squeeze'
         !--------------------------------------------------------------!
         ! Remove this crown area                                   (m^2)
         !--------------------------------------------------------------!
         Acrown (KI) = Acrown (KI) - lose
         if (Acrown (KI) < 0.0) stop
+      write (*,*) 'Afoliage',KI,Afoliage(KI),Acrown(KI),H(KI)
         !--------------------------------------------------------------!
         ! Adjust canopy profile due to change in crown area.
         !--------------------------------------------------------------!
@@ -128,6 +132,7 @@ DO L = tall, short, -1
   END IF over_area
   !--------------------------------------------------------------------!
 END DO
+write (*,*)
 !----------------------------------------------------------------------!
 
 END SUBROUTINE squeeze
