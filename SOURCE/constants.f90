@@ -46,7 +46,7 @@ REAL, PARAMETER :: SLA       =   17.2 ! Specific leaf area  (m^2/kg[DM])
 ! Crown/stem diameter ratio fitted to Bartelink (1997), using his
 ! la = f (Acrown) relationship, inverted, and fitted by eye.
 !----------------------------------------------------------------------!
-REAL, PARAMETER :: b_cd      =   29.0 ! Crown area allometry     (m^2/m)
+REAL, PARAMETER :: b_cd      =   29.0 ! Crown area allometry     (m^2/m) ! In H9 and squeeze this is used as if it is m / m and not m^2 / m 
 !----------------------------------------------------------------------!
 ! Foliage/sapwood area ratio from Bartlink (1997)              (m^2/m^2)
 !----------------------------------------------------------------------!
